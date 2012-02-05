@@ -146,6 +146,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\uwnrg32.bmp" />
+    <Content Include="TIS_DShowLib08d.dll" />
+    <Content Include="TIS_UDSHL08_vc71d.dll" />
+    <Content Include="TIS_UDSHL08_vc8d.dll" />
+    <Content Include="TIS_UDSHL08_vc9d.dll" />
     <Content Include="uwnrg32.ico" />
   </ItemGroup>
   <ItemGroup>
