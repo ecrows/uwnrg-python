@@ -394,7 +394,36 @@ namespace UWNRG_2011
         /// </summary>
         private void manualGoButton_Click(object sender, EventArgs e)
         {
-            int up, down, left, right;
+            int up, down, left, right, counterclockwise, clockwise;
+
+            if (counterclockwiseTextBox.Text == null)
+            {
+                counterclockwise = 0;
+            }
+            else
+            {
+                counterclockwise = int.Parse(counterclockwiseTextBox.Text);
+            }
+            if (clockwiseTextBox.Text == null)
+            {
+                clockwise = 0;
+            }
+            else
+            {
+                clockwise = int.Parse(clockwiseTextBox.Text);
+            }
+            clockwise = clockwise - counterclockwise;
+
+            while (clockwise < -180)
+            {
+                clockwise += 360;
+            }
+            while (clockwise > 180)
+            {
+                clockwise -= 360;
+            }
+            vfield.rotate(clockwise);
+
             if (upTextBox.Text == null)
             {
                 up = 0;

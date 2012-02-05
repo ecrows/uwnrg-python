@@ -13,7 +13,7 @@
 Servo myservo;  // create servo object to control a servo 
                 // a maximum of eight servo objects can be created
                 
-int pos = 90; // variable to store the servo position
+int pos = 0; // variable to store the servo position
 
 int val; // Value read from the serial port
 
@@ -36,11 +36,17 @@ void loop()
         Serial.println(val, BYTE);
         if (val == 99) //99 = c in dec (aka counterclockwise)
         {
-            pos -= 1;
+            if (pos > -180)
+            {
+                pos -= 1;
+            }
         }
         else if (val == 67) //67 = C in dec (aka clockwise)
         {
-            pos += 1;
+            if (pos < 180)
+            {
+                pos += 1;
+            }
         }
         myservo.write(pos);              // tell servo to go to position in variable 'pos' 
         //myservo.detach(); //detaches the servo on pin 9 to prevent buzzing

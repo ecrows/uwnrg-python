@@ -17,3 +17,6 @@ C:\Users\Garry\documents\visual studio 2010\Projects\UWNRG_2011\UWNRG_2011\obj\x
 C:\Users\Garry\documents\visual studio 2010\Projects\UWNRG_2011\UWNRG_2011\obj\x86\Debug\UWNRG_2011.exe.licenses
 C:\Users\Garry\documents\visual studio 2010\Projects\UWNRG_2011\UWNRG_2011\obj\x86\Debug\UWNRG_2011.exe
 C:\Users\Garry\documents\visual studio 2010\Projects\UWNRG_2011\UWNRG_2011\obj\x86\Debug\UWNRG_2011.pdb
+C:\dev\uwnrg\UWNRG_2011\bin\Debug\UWNRG_2011.exe.config
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.exe
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.pdb
