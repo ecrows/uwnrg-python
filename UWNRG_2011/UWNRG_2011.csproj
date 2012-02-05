@@ -93,7 +93,6 @@
     <Compile Include="ActuatorSettings.Designer.cs">
       <DependentUpon>ActuatorSettings.cs</DependentUpon>
     </Compile>
-    <Compile Include="Arduino.cs" />
     <Compile Include="Astar.cs" />
     <Compile Include="ConversationView.cs" />
     <Compile Include="FigureEight.cs" />

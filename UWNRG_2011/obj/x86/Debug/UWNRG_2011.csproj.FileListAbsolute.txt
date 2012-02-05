@@ -20,3 +20,12 @@ C:\Users\Garry\documents\visual studio 2010\Projects\UWNRG_2011\UWNRG_2011\obj\x
 C:\dev\uwnrg\UWNRG_2011\bin\Debug\UWNRG_2011.exe.config
 C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.exe
 C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.pdb
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.ActuatorSettings.resources
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.WriteAvi.resources
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.AboutPage.resources
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.UWNRG_2011.resources
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.Properties.Resources.resources
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\ResGen.read.1.tlog
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\ResGen.write.1.tlog
+C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.exe.licenses
