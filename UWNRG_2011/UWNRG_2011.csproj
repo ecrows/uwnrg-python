@@ -60,9 +60,8 @@
     <SignAssembly>false</SignAssembly>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="log4net, Version=1.2.9.0, Culture=neutral, PublicKeyToken=b32731d11ce58905">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>\bin\Debug\log4net.dll</HintPath>
+    <Reference Include="log4net">
+      <HintPath>References\log4net.dll</HintPath>
     </Reference>
     <Reference Include="Microsoft.VisualC" />
     <Reference Include="System" />
@@ -73,11 +72,10 @@
     <Reference Include="System.Xml" />
     <Reference Include="TIS.Imaging.ICImagingControl31, Version=3.1.0.586, Culture=neutral, PublicKeyToken=257805929e8b7928, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\TIS.Imaging.ICImagingControl31.dll</HintPath>
+      <HintPath>References\TIS.Imaging.ICImagingControl31.dll</HintPath>
     </Reference>
-    <Reference Include="Zaber, Version=1.1.0.0, Culture=neutral, PublicKeyToken=12d2a14f2d1bdea1, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>\bin\Debug\Zaber.dll</HintPath>
+    <Reference Include="Zaber">
+      <HintPath>References\Zaber.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
