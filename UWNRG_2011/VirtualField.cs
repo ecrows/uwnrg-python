@@ -64,15 +64,28 @@ namespace UWNRG_2011
 
         //Specify the length of the width/length (x/y) of how far you want the stage can go (
         //Corresponds with the X dimension - MAX is 131327)
-        double wall_width = 131327; 
+        double wall_width = 131327;
         double wall_length = 131327;
 
         //Specifies whether the linear actuators are connected or not.
-        private bool connected;
+        private bool arduinoConnected;
+        public bool ArduinoConnected
+        {
+            get { return arduinoConnected; }
+            set { arduinoConnected = value; }
+        }
+
+        //Specifies whether the linear actuators are connected or not.
+        private bool actuatorsConnected;
         public bool ActuatorsConnected
         {
-            get { return connected; }
-            set { connected = value; }
+            get { return actuatorsConnected; }
+            set { actuatorsConnected = value; }
+        }
+
+        public bool Connected
+        {
+            get { return ActuatorsConnected && ArduinoConnected; }
         }
 
         //Zaber Variables
@@ -80,6 +93,9 @@ namespace UWNRG_2011
         private System.ComponentModel.IContainer components = null;
         private System.Windows.Forms.BindingSource conversationViewBindingSource;
         private String responses;
+
+        //Arduinio Variables
+        private SerialPort serialPort1 = new SerialPort();
 
         public VirtualField()
         {
@@ -94,7 +110,7 @@ namespace UWNRG_2011
             //Initilize Zaber
             CreatePortFacade();
             ClearMessages();
-            this.connected = false;
+            this.actuatorsConnected = false;
 
             ZaberDevice allDevices = portFacade.GetDevice(0);
             this.components = new System.ComponentModel.Container();
@@ -104,6 +120,39 @@ namespace UWNRG_2011
                 new EventHandler<DeviceMessageEventArgs>(allDevices_MessageReceived);
             allDevices.MessageSent +=
                 new EventHandler<DeviceMessageEventArgs>(allDevices_MessageSent);
+
+            //Initilize Arduino
+            serialPort1.PortName = "COM4"; //<----------------------------------------------- this will probably need to be changed
+            serialPort1.BaudRate = 9600;  //<----------------------------------------------- this as well?
+            serialPort1.Open(); 
+        }
+
+        /*-------------------------------------------------------
+        * 
+        * Methods for the arduino written by Matt
+        * 
+        --------------------------------------------------------*/
+
+        /*This method rotates the arduino servo clockwise
+         */
+        public void rotate(int clockwise)
+        {
+            if (clockwise > 0)
+            {
+                for (int i = 0; i < clockwise; i++) //clockwise
+                {
+                    Thread.Sleep(100); //to slow rotation
+                    serialPort1.Write("C");
+                }
+            }
+            else
+            {
+                for (int i = 0; i > clockwise; i--) //counterclockwise
+                {
+                    Thread.Sleep(100); //to slow rotation
+                    serialPort1.Write("c");
+                }
+            }
         }
         
         /*-------------------------------------------------------
@@ -276,7 +325,7 @@ namespace UWNRG_2011
                         conversationViewBindingSource.Add(new ConversationView(conversation));
                     }
                     LogMessage("Successfully connected to " + portText + ".\n");
-                    this.connected = true;
+                    this.actuatorsConnected = true;
                 }
                 catch (LoopbackException)
                 {
@@ -286,7 +335,7 @@ namespace UWNRG_2011
                 {
                     LogMessage("Unknown Exception detected. The error was as follows: " + err + "\n");
                 }
-                this.connected = false;
+                this.actuatorsConnected = false;
             }
         }
 
@@ -295,7 +344,7 @@ namespace UWNRG_2011
             portFacade.Close();
             conversationViewBindingSource.Clear();
             LogMessage("Port bindings cleared.\n");
-            this.connected = false;
+            this.actuatorsConnected = false;
         }
 
 

@@ -486,6 +486,17 @@ namespace UWNRG_2011
                     UpdateSystemLog("'D' was pressed.\n");
                     vfield.moveRelative((-1) * keyStepSize, 0);
                 }
+                if (keyEvent.KeyChar == 'e')
+                {
+                    UpdateSystemLog("'E' was pressed.\n");
+                    vfield.rotate(1);
+                }
+                if (keyEvent.KeyChar == 'q')
+                {
+                    UpdateSystemLog("'Q' was pressed.\n");
+                    vfield.rotate(-1);
+                }
+
             }
         } 
     }

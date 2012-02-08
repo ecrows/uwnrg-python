@@ -36,14 +36,14 @@ void loop()
         Serial.println(val, BYTE);
         if (val == 99) //99 = c in dec (aka counterclockwise)
         {
-            if (pos > -180)
+            if (pos > -180) //not sure whether -180 and 180 are the min and max
             {
                 pos -= 1;
             }
         }
         else if (val == 67) //67 = C in dec (aka clockwise)
         {
-            if (pos < 180)
+            if (pos < 180) //not sure whether -180 and 180 are the min and max
             {
                 pos += 1;
             }
