@@ -29,3 +29,20 @@ C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.Properties.Resources.resources
 C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\ResGen.read.1.tlog
 C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\ResGen.write.1.tlog
 C:\dev\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.exe.licenses
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\bin\Debug\UWNRG_2011.exe.config
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.exe
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.pdb
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\ResolveAssemblyReference.cache
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.ActuatorSettings.resources
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.WriteAvi.resources
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.AboutPage.resources
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.UWNRG_2011.resources
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.Properties.Resources.resources
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\ResGen.read.1.tlog
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\ResGen.write.1.tlog
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\obj\x86\Debug\UWNRG_2011.exe.licenses
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\bin\Debug\UWNRG_2011.exe
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\bin\Debug\UWNRG_2011.pdb
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\bin\Debug\log4net.dll
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\bin\Debug\TIS.Imaging.ICImagingControl31.dll
+C:\Users\Evan Crothers\Documents\Uni\UWNRG\Code\uwnrg\UWNRG_2011\bin\Debug\Zaber.dll

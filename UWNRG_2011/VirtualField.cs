@@ -95,7 +95,7 @@ namespace UWNRG_2011
         private String responses;
 
         //Arduinio Variables
-        private SerialPort serialPort1 = new SerialPort();
+        //private SerialPort serialPort1 = new SerialPort();
 
         public VirtualField()
         {
@@ -122,9 +122,9 @@ namespace UWNRG_2011
                 new EventHandler<DeviceMessageEventArgs>(allDevices_MessageSent);
 
             //Initilize Arduino
-            serialPort1.PortName = "COM4"; //<----------------------------------------------- this will probably need to be changed
-            serialPort1.BaudRate = 9600;  //<----------------------------------------------- this as well?
-            serialPort1.Open(); 
+            //serialPort1.PortName = "COM7"; //<----------------------------------------------- this will probably need to be changed
+            //serialPort1.BaudRate = 9600;  //<----------------------------------------------- this as well?
+            //serialPort1.Open(); 
         }
 
         /*-------------------------------------------------------
@@ -142,7 +142,7 @@ namespace UWNRG_2011
                 for (int i = 0; i < clockwise; i++) //clockwise
                 {
                     Thread.Sleep(100); //to slow rotation
-                    serialPort1.Write("C");
+                    //serialPort1.Write("C");
                 }
             }
             else
@@ -150,7 +150,7 @@ namespace UWNRG_2011
                 for (int i = 0; i > clockwise; i--) //counterclockwise
                 {
                     Thread.Sleep(100); //to slow rotation
-                    serialPort1.Write("c");
+                    //serialPort1.Write("c");
                 }
             }
         }
@@ -165,8 +165,8 @@ namespace UWNRG_2011
          */
         public void moveRelative(int pass_cell_width, int pass_cell_length)
         {
-            var x_convo = portFacade.GetConversation(1);
-            var y_convo = portFacade.GetConversation(2);
+            var x_convo = portFacade.GetConversation(0);//1
+            var y_convo = portFacade.GetConversation(1);//2
             var topic = x_convo.StartTopic();
             x_convo.Device.Send(Command.MoveRelative, pass_cell_width, topic.MessageId);
             y_convo.Request(Command.MoveRelative, pass_cell_length);

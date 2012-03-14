@@ -65,7 +65,7 @@ namespace UWNRG_2011
             // Try to load the previously used device. 
             try
             {
-                icImagingControl1.LoadDeviceStateFromFile("device.xml", true);
+                //icImagingControl1.LoadDeviceStateFromFile("device.xml", true);
             }
             catch
             {
@@ -83,10 +83,10 @@ namespace UWNRG_2011
         /// </summary>
         private void UWNRG_FormClosing(object sender, FormClosingEventArgs e)
         {
-            if (icImagingControl1.DeviceValid)
-            {
-                icImagingControl1.LiveStop();
-            }
+            //if (icImagingControl1.DeviceValid)
+            //{
+            //    icImagingControl1.LiveStop();
+            //}
         }
 
         /// <summary>
@@ -95,17 +95,17 @@ namespace UWNRG_2011
         private void OpenNewVideoCaptureDevice()
         {
 
-            if (icImagingControl1.DeviceValid)
+            /**if (icImagingControl1.DeviceValid)
             {
                 icImagingControl1.LiveStop();
             }
             else
             {
                 icImagingControl1.Device = "";
-            }
+            }*/
             UpdateControls(); // Disable the controls.
 
-            icImagingControl1.ShowDeviceSettingsDialog();
+            /**icImagingControl1.ShowDeviceSettingsDialog();
             if (icImagingControl1.DeviceValid)
             {
                 // Save the currently used device into a file in order to be able to open it
@@ -113,7 +113,7 @@ namespace UWNRG_2011
                 icImagingControl1.SaveDeviceStateToFile("device.xml");
                 // Enable the menu and toolbar controls.
                 UpdateControls();
-            }
+            }*/
         }
 
         /// <summary>
@@ -121,7 +121,7 @@ namespace UWNRG_2011
         /// </summary>
         private void StartLiveVideo()
         {
-            icImagingControl1.LiveStart();
+            //icImagingControl1.LiveStart();
             UpdateControls();
         }
 
@@ -130,7 +130,7 @@ namespace UWNRG_2011
         /// </summary>
         private void StopLiveVideo()
         {
-            icImagingControl1.LiveStop();
+            //icImagingControl1.LiveStop();
             UpdateControls();
         }
 
@@ -140,11 +140,11 @@ namespace UWNRG_2011
         /// </summary>
         private void ShowDeviceProperties()
         {
-            if (icImagingControl1.DeviceValid == true)
-            {
-                icImagingControl1.ShowPropertyDialog();
-                icImagingControl1.SaveDeviceStateToFile("device.xml");
-            }
+           // if (icImagingControl1.DeviceValid == true)
+            //{
+                //icImagingControl1.ShowPropertyDialog();
+                //icImagingControl1.SaveDeviceStateToFile("device.xml");
+            //}
         }
 
         /// <summary>
@@ -152,7 +152,7 @@ namespace UWNRG_2011
         /// </summary>
         public void UpdateControls()
         {
-            imageControlSettingsToolStripMenuItem.Enabled = icImagingControl1.DeviceValid;
+            /**imageControlSettingsToolStripMenuItem.Enabled = icImagingControl1.DeviceValid;
             if (icImagingControl1.DeviceValid)
             {
                 startLiveFeedToolStripMenuItem.Enabled = !icImagingControl1.LiveVideoRunning;
@@ -161,12 +161,12 @@ namespace UWNRG_2011
                 captureVideoToolStripMenuItem.Enabled = icImagingControl1.LiveVideoRunning;
             }
             else
-            {
+            {*/
                 startLiveFeedToolStripMenuItem.Enabled = false;
                 stopLiveFeedToolStripMenuItem.Enabled = false;
                 snapPictureToolStripMenuItem.Enabled = false;
                 captureVideoToolStripMenuItem.Enabled = false;
-            }
+            //}
 
             if (vfield != null)
             {
@@ -321,7 +321,7 @@ namespace UWNRG_2011
         /// </summary>
         private void snapPictureToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            icImagingControl1.MemorySnapImage();
+            //icImagingControl1.MemorySnapImage();
             saveFileDialog1 = new SaveFileDialog();
             saveFileDialog1.Filter = "bmp files (*.bmp)|*.bmp|All files (*.*)|*.*";
             saveFileDialog1.FilterIndex = 1;
@@ -329,7 +329,7 @@ namespace UWNRG_2011
 
             if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
-                icImagingControl1.MemorySaveImage(saveFileDialog1.FileName);
+                //icImagingControl1.MemorySaveImage(saveFileDialog1.FileName);
             }
 
         }
@@ -339,8 +339,8 @@ namespace UWNRG_2011
         /// </summary>
         private void captureVideoToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            aviForm = new WriteAvi(icImagingControl1, this);
-            aviForm.Show();
+            //aviForm = new WriteAvi(icImagingControl1, this);
+           // aviForm.Show();
         }
 
         /// <summary>
@@ -471,9 +471,9 @@ namespace UWNRG_2011
                     UpdateSystemLog("'W' was pressed.\n");
                     vfield.moveRelative(0, (-1)*keyStepSize);
                 }
-                if (keyEvent.KeyChar == 'a')
+                if (keyEvent.KeyChar == 'd')
                 {
-                    UpdateSystemLog("'A' was pressed.\n");
+                    UpdateSystemLog("'D' was pressed.\n");
                     vfield.moveRelative(keyStepSize, 0);
                 }
                 if (keyEvent.KeyChar == 's')
@@ -481,9 +481,9 @@ namespace UWNRG_2011
                     UpdateSystemLog("'S' was pressed.\n");
                     vfield.moveRelative(0, keyStepSize);
                 }
-                if (keyEvent.KeyChar == 'd')
+                if (keyEvent.KeyChar == 'a')
                 {
-                    UpdateSystemLog("'D' was pressed.\n");
+                    UpdateSystemLog("'A' was pressed.\n");
                     vfield.moveRelative((-1) * keyStepSize, 0);
                 }
                 if (keyEvent.KeyChar == 'e')
