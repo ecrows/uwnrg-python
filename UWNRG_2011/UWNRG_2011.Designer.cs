@@ -264,7 +264,7 @@
             this.mode1Button.Name = "mode1Button";
             this.mode1Button.Size = new System.Drawing.Size(80, 25);
             this.mode1Button.TabIndex = 3;
-            this.mode1Button.Text = "1";
+            this.mode1Button.Text = "Auto";
             this.mode1Button.UseVisualStyleBackColor = true;
             this.mode1Button.Click += new System.EventHandler(this.mode1Button_Click);
             // 
@@ -274,7 +274,7 @@
             this.mode2Button.Name = "mode2Button";
             this.mode2Button.Size = new System.Drawing.Size(80, 25);
             this.mode2Button.TabIndex = 4;
-            this.mode2Button.Text = "2";
+            this.mode2Button.Text = "Micro";
             this.mode2Button.UseVisualStyleBackColor = true;
             this.mode2Button.Click += new System.EventHandler(this.mode2Button_Click);
             // 
@@ -296,7 +296,7 @@
             this.mode3Button.Name = "mode3Button";
             this.mode3Button.Size = new System.Drawing.Size(80, 25);
             this.mode3Button.TabIndex = 5;
-            this.mode3Button.Text = "3";
+            this.mode3Button.Text = "Manual";
             this.mode3Button.UseVisualStyleBackColor = true;
             this.mode3Button.Click += new System.EventHandler(this.mode3Button_Click);
             // 
