@@ -30,6 +30,8 @@ namespace UWNRG_2011
 
         //Mode
         private int currentMode = 0;
+        private int invertedXAxis = 1;
+        private int invertedYAxis = 1;
 
         //Key Step Size (when you press)
         const int keyStepSize = 2500;
@@ -456,7 +458,7 @@ namespace UWNRG_2011
             {
                 right = int.Parse(rightTextBox.Text);
             }
-            vfield.moveRelative((right - left), (down - up));
+            vfield.moveRelative(this.invertedXAxis * (right - left), this.invertedYAxis * (down - up));
         }
 
         /// <summary>
@@ -498,6 +500,16 @@ namespace UWNRG_2011
                 }
 
             }
-        } 
+        }
+
+        private void invertXAxisToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.invertedXAxis = invertXAxisToolStripMenuItem.Checked ? -1 : 1;
+        }
+
+        private void invertYAxisToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            this.invertedYAxis = invertYAxisToolStripMenuItem.Checked ? -1 : 1;
+        }
     }
 }

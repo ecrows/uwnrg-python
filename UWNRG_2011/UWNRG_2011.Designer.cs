@@ -48,6 +48,8 @@
             this.presetToolStripMenuItem1 = new System.Windows.Forms.ToolStripMenuItem();
             this.debugToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewVirtualGridOutputToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.preferencesToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.invertXAxisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip1 = new System.Windows.Forms.StatusStrip();
             this.toolStripStatusLabelType = new System.Windows.Forms.ToolStripStatusLabel();
             this.mode1Button = new System.Windows.Forms.Button();
@@ -62,11 +64,12 @@
             this.downTextBox = new System.Windows.Forms.TextBox();
             this.manualGoButton = new System.Windows.Forms.Button();
             this.operationsBox = new System.Windows.Forms.GroupBox();
+            this.counterclockwiseTextBox = new System.Windows.Forms.TextBox();
+            this.clockwiseTextBox = new System.Windows.Forms.TextBox();
             this.startButton = new System.Windows.Forms.Button();
             this.stopButton = new System.Windows.Forms.Button();
             this.infiniteButton = new System.Windows.Forms.Button();
-            this.clockwiseTextBox = new System.Windows.Forms.TextBox();
-            this.counterclockwiseTextBox = new System.Windows.Forms.TextBox();
+            this.invertYAxisToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenuStrip.SuspendLayout();
             this.statusStrip1.SuspendLayout();
             this.groupBox1.SuspendLayout();
@@ -80,7 +83,8 @@
             this.menuToolStripMenuItem,
             this.cameraToolStripMenuItem,
             this.presetToolStripMenuItem,
-            this.debugToolStripMenuItem});
+            this.debugToolStripMenuItem,
+            this.preferencesToolStripMenuItem});
             this.mainMenuStrip.Location = new System.Drawing.Point(0, 0);
             this.mainMenuStrip.Name = "mainMenuStrip";
             this.mainMenuStrip.Size = new System.Drawing.Size(944, 28);
@@ -194,7 +198,6 @@
             // 
             this.micromobilityRunToolStripMenuItem.Name = "micromobilityRunToolStripMenuItem";
             this.micromobilityRunToolStripMenuItem.Size = new System.Drawing.Size(210, 24);
-            this.micromobilityRunToolStripMenuItem.Text = "Micromobility Run";
             // 
             // microassemblyRunToolStripMenuItem
             // 
@@ -221,6 +224,23 @@
             this.viewVirtualGridOutputToolStripMenuItem.Name = "viewVirtualGridOutputToolStripMenuItem";
             this.viewVirtualGridOutputToolStripMenuItem.Size = new System.Drawing.Size(239, 24);
             this.viewVirtualGridOutputToolStripMenuItem.Text = "View Virtual Grid Output";
+            // 
+            // preferencesToolStripMenuItem
+            // 
+            this.preferencesToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.invertXAxisToolStripMenuItem,
+            this.invertYAxisToolStripMenuItem});
+            this.preferencesToolStripMenuItem.Name = "preferencesToolStripMenuItem";
+            this.preferencesToolStripMenuItem.Size = new System.Drawing.Size(97, 24);
+            this.preferencesToolStripMenuItem.Text = "Preferences";
+            // 
+            // invertXAxisToolStripMenuItem
+            // 
+            this.invertXAxisToolStripMenuItem.CheckOnClick = true;
+            this.invertXAxisToolStripMenuItem.Name = "invertXAxisToolStripMenuItem";
+            this.invertXAxisToolStripMenuItem.Size = new System.Drawing.Size(161, 24);
+            this.invertXAxisToolStripMenuItem.Text = "Invert X-Axis";
+            this.invertXAxisToolStripMenuItem.Click += new System.EventHandler(this.invertXAxisToolStripMenuItem_Click);
             // 
             // statusStrip1
             // 
@@ -358,6 +378,22 @@
             this.operationsBox.TabStop = false;
             this.operationsBox.Text = "Operations";
             // 
+            // counterclockwiseTextBox
+            // 
+            this.counterclockwiseTextBox.Location = new System.Drawing.Point(20, 14);
+            this.counterclockwiseTextBox.Name = "counterclockwiseTextBox";
+            this.counterclockwiseTextBox.Size = new System.Drawing.Size(70, 20);
+            this.counterclockwiseTextBox.TabIndex = 12;
+            this.counterclockwiseTextBox.Text = "0";
+            // 
+            // clockwiseTextBox
+            // 
+            this.clockwiseTextBox.Location = new System.Drawing.Point(173, 14);
+            this.clockwiseTextBox.Name = "clockwiseTextBox";
+            this.clockwiseTextBox.Size = new System.Drawing.Size(70, 20);
+            this.clockwiseTextBox.TabIndex = 11;
+            this.clockwiseTextBox.Text = "0";
+            // 
             // startButton
             // 
             this.startButton.Location = new System.Drawing.Point(667, 484);
@@ -386,21 +422,13 @@
             this.infiniteButton.Text = "Infinite";
             this.infiniteButton.UseVisualStyleBackColor = true;
             // 
-            // clockwiseTextBox
+            // invertYAxisToolStripMenuItem
             // 
-            this.clockwiseTextBox.Location = new System.Drawing.Point(173, 14);
-            this.clockwiseTextBox.Name = "clockwiseTextBox";
-            this.clockwiseTextBox.Size = new System.Drawing.Size(70, 20);
-            this.clockwiseTextBox.TabIndex = 11;
-            this.clockwiseTextBox.Text = "0";
-            // 
-            // counterclockwiseTextBox
-            // 
-            this.counterclockwiseTextBox.Location = new System.Drawing.Point(20, 14);
-            this.counterclockwiseTextBox.Name = "counterclockwiseTextBox";
-            this.counterclockwiseTextBox.Size = new System.Drawing.Size(70, 20);
-            this.counterclockwiseTextBox.TabIndex = 12;
-            this.counterclockwiseTextBox.Text = "0";
+            this.invertYAxisToolStripMenuItem.CheckOnClick = true;
+            this.invertYAxisToolStripMenuItem.Name = "invertYAxisToolStripMenuItem";
+            this.invertYAxisToolStripMenuItem.Size = new System.Drawing.Size(161, 24);
+            this.invertYAxisToolStripMenuItem.Text = "Invert Y-Axis";
+            this.invertYAxisToolStripMenuItem.Click += new System.EventHandler(this.invertYAxisToolStripMenuItem_Click);
             // 
             // UWNRG_2011
             // 
@@ -474,6 +502,9 @@
         private System.Windows.Forms.ToolStripMenuItem viewVirtualGridOutputToolStripMenuItem;
         private System.Windows.Forms.TextBox counterclockwiseTextBox;
         private System.Windows.Forms.TextBox clockwiseTextBox;
+        private System.Windows.Forms.ToolStripMenuItem preferencesToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem invertXAxisToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem invertYAxisToolStripMenuItem;
     }
 }
 
