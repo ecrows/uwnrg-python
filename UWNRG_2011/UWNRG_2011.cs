@@ -424,7 +424,7 @@ namespace UWNRG_2011
             {
                 clockwise -= 360;
             }
-            vfield.rotate(clockwise);
+            vfield.rotate(this.invertedXAxis * clockwise);
 
             if (upTextBox.Text == null)
             {
