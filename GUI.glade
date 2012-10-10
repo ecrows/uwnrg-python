@@ -5,6 +5,7 @@
   <!-- interface-local-resource-path C:\dev\uwnrg -->
   <object class="GtkWindow" id="MainWindow">
     <signal name="destroy" handler="on_MainWindow_destroy"/>
+    <signal name="key_press_event" handler="on_MainWindow_key_press_event"/>
     <child>
       <object class="GtkVBox" id="vbox1">
         <property name="visible">True</property>
@@ -151,6 +152,20 @@
                         <property name="use_underline">True</property>
                       </object>
                     </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem5">
+                        <property name="visible">True</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem" id="keyboardInputMenu">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Manual Keyboard Input</property>
+                        <property name="use_underline">True</property>
+                        <property name="active">True</property>
+                        <signal name="toggled" handler="on_keyboardInputMenu_toggled"/>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -214,6 +229,15 @@
                     <property name="visible">True</property>
                     <property name="orientation">vertical</property>
                     <child>
+                      <object class="GtkLabel" id="manualControlLabel">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Enter Manual Movement</property>
+                      </object>
+                      <packing>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
                       <object class="GtkHBox" id="hbox2">
                         <property name="visible">True</property>
                         <child>
@@ -246,7 +270,7 @@
                         </child>
                       </object>
                       <packing>
-                        <property name="position">0</property>
+                        <property name="position">1</property>
                       </packing>
                     </child>
                     <child>
@@ -258,7 +282,7 @@
                         <signal name="clicked" handler="on_enterInstructionButton_clicked"/>
                       </object>
                       <packing>
-                        <property name="position">1</property>
+                        <property name="position">2</property>
                       </packing>
                     </child>
                   </object>
@@ -307,7 +331,6 @@
   </object>
   <object class="GtkAboutDialog" id="AboutWindow">
     <property name="border_width">5</property>
-    <property name="destroy_with_parent">True</property>
     <property name="type_hint">normal</property>
     <property name="has_separator">False</property>
     <property name="program_name">Controls System</property>
