@@ -1,0 +1,4 @@
+Importing Functions and Files
+http://code.google.com/p/soc/wiki/PythonStyleGuide#Imports
+
+do as i say, not how i code

@@ -215,10 +215,40 @@
                 <property name="visible">True</property>
                 <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkTextView" id="textview1">
+                  <object class="GtkVBox" id="vbox4">
+                    <property name="height_request">600</property>
                     <property name="visible">True</property>
-                    <property name="can_focus">True</property>
-                    <property name="editable">False</property>
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkLabel" id="logLabel">
+                        <property name="visible">True</property>
+                        <property name="label" translatable="yes">Log</property>
+                      </object>
+                      <packing>
+                        <property name="expand">False</property>
+                        <property name="position">0</property>
+                      </packing>
+                    </child>
+                    <child>
+                      <object class="GtkScrolledWindow" id="logScrollWindow">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="hscrollbar_policy">automatic</property>
+                        <property name="vscrollbar_policy">automatic</property>
+                        <child>
+                          <object class="GtkTextView" id="logView">
+                            <property name="width_request">500</property>
+                            <property name="visible">True</property>
+                            <property name="can_focus">True</property>
+                            <property name="editable">False</property>
+                            <property name="wrap_mode">word</property>
+                          </object>
+                        </child>
+                      </object>
+                      <packing>
+                        <property name="position">1</property>
+                      </packing>
+                    </child>
                   </object>
                   <packing>
                     <property name="position">0</property>
@@ -419,4 +449,11 @@ until someone writes the help documents.</property>
       <action-widget response="0">closeHelpButton</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkTextBuffer" id="textbuffer1"/>
+  <object class="GtkTextBuffer" id="textbuffer2"/>
+  <object class="GtkTextBuffer" id="textbuffer3"/>
+  <object class="GtkTextBuffer" id="textbuffer4"/>
+  <object class="GtkTextBuffer" id="textbuffer5"/>
+  <object class="GtkTextBuffer" id="textbuffer6"/>
+  <object class="GtkTextBuffer" id="textbuffer7"/>
 </interface>

@@ -3,10 +3,10 @@
 """
 import gtk
 import facade
+import log
 
 class  MainWindow:
-
-    def enterMovementInstruction(self, button):
+    def __enterMovementInstruction(self, button):
         comboConversion = {0 : facade.LEFT, 1 : facade.RIGHT, 2 : facade.UP, 3 : facade.DOWN, 4 : facade.CLOCKWISE, 5 : facade.CCLOCKWISE}
         direction = comboConversion[self.builder_.get_object("instructionComboBox").get_active()]
 
@@ -24,39 +24,40 @@ class  MainWindow:
 #new_text_length - the length of the new text
 #position - a pointer to the location at which the new text will be inserted
 
-    def invertXAxis(self, checkMenuItem):
+    def __invertXAxis(self, checkMenuItem):
         self.invertXAxis_ ^= True;
  
-    def invertYAxis(self, checkMenuItem):
+    def __invertYAxis(self, checkMenuItem):
         self.invertYAxis_ ^= True;         
 
-    def openAboutWindow(self, menuItem):
+    def __openAboutWindow(self, menuItem):
         aboutWindow = self.builder_.get_object("AboutWindow")
 
         #do not listen for close events in order for the close button on the window to work, as you are unable to add a signal to the close button
         aboutWindow.run()
         aboutWindow.hide()
 
-    def openHelpWindow(self, menuItem): 
+    def __openHelpWindow(self, menuItem): 
         helpWindow = self.builder_.get_object("HelpWindow")
 
         #do not listen for close events in order for the close button on the window to work, as you are unable to add a signal to the close button
         helpWindow.run()
         helpWindow.hide()
 
-    def toggleKeyboardInput(self, menuItem):
+    def __toggleKeyboardInput(self, menuItem):
         self.keyboardInput_ ^= True;
 
-    def keyboardMovementInstruction(self, window, event):
+    def __keyboardMovementInstruction(self, window, event):
         keyPressed = event.keyval
         comboConversion = {97 : facade.LEFT, 100 : facade.RIGHT, 119 : facade.UP, 115 : facade.DOWN, 101 : facade.CLOCKWISE, 113 : facade.CCLOCKWISE}
 
-        if keyPressed in comboConversion:
+        if keyPressed in comboConversion and self.keyboardInput_ :
             direction = comboConversion[keyPressed]
     
             magnitude = facade.DEFAULT_MOVEMENT_MAGNITUDE
     
             facade.moveImmediate(magnitude, direction)
+
 
     def __init__(self):
         filename = "GUI.glade"
@@ -65,16 +66,18 @@ class  MainWindow:
         self.invertXAxis_ = False
         self.invertYAxis_ = False
         self.keyboardInput_ = True
+        log._log.setBuffer(self.builder_.get_object("logView").get_property('buffer')) #sets the buffer for local log variable in the Log file
+
         handlers = {
             "gtk_main_quit" : gtk.main_quit,
             "on_MainWindow_destroy" : gtk.main_quit,
-            "on_enterInstructionButton_clicked" : self.enterMovementInstruction,
-            "on_invertXAxisMenu_toggled" : self.invertXAxis,
-            "on_invertYAxisMenu_toggled" : self.invertYAxis,
-            "on_AboutMenu_activate" : self.openAboutWindow,
-            "on_helpHelpMenu_activate" : self.openHelpWindow,
-            "on_keyboardInputMenu_toggled" : self.toggleKeyboardInput,
-            "on_MainWindow_key_press_event" : self.keyboardMovementInstruction,
+            "on_enterInstructionButton_clicked" : self.__enterMovementInstruction,
+            "on_invertXAxisMenu_toggled" : self.__invertXAxis,
+            "on_invertYAxisMenu_toggled" : self.__invertYAxis,
+            "on_AboutMenu_activate" : self.__openAboutWindow,
+            "on_helpHelpMenu_activate" : self.__openHelpWindow,
+            "on_keyboardInputMenu_toggled" : self.__toggleKeyboardInput,
+            "on_MainWindow_key_press_event" : self.__keyboardMovementInstruction,
         }
         self.builder_.connect_signals(handlers)
         self.builder_.get_object("MainWindow").show_all()
