@@ -1,6 +1,3 @@
-"""
-design choice that all dialogs are modal, and no events will be processed until after they are closed. That means all main work will be done on the main screen. This can be changed, but was too much effort to figure out otherwise as when pressing the escape in the top right corner, even if returning True, it would still destroy the window instead of hide.
-"""
 import gtk
 import facade as facade
 import log as log
