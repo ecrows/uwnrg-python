@@ -1,7 +1,7 @@
 I have tried to create the backbone of the program with this commit as well as add the UI.
 The installation files for the libaries I used can be found in the dropbox folder, but they are:
 
-pygtk-2.24.0.win32-py2.6
+pygtk-all-in-one-2.24.1.win32-py2.7
 Glade3-3.6.1
 
 Code guidelines are a mix of pep-0008, Google's standards, and personal preferences.
