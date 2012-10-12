@@ -20,3 +20,5 @@ The windows in the UI are implemented as modal. None of the data is saved until 
 Also, if you create a new folder within the file system, add '__init__.py', which can be a blank file, to the folder. This allows you to import from it.
 
 A basic strategy pattern was implemented for different control systems. The constant is specified in main.py through the UI (hardcoded to ACTUATORS, and no support for change in the UI at the moment either). This will affect what functions the facade calls. I believe this is the most appropriate way to do it, but the solution is up for debate.
+
+Run the program with the command "python main.py"
