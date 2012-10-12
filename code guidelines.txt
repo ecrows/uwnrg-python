@@ -1,4 +1,21 @@
-Importing Functions and Files
-http://code.google.com/p/soc/wiki/PythonStyleGuide#Imports
+IMPORTS:
+    
+you can only import modules (files)
+they will be imported as such
 
-do as i say, not how i code
+
+import x.y.z as z
+z.fcn()
+
+
+NAMING CONVENTIONS:
+
+http://google-styleguide.googlecode.com/svn/trunk/pyguide.html#Naming
+
+For everything else not mentioned above:
+http://www.python.org/dev/peps/pep-0008/
+
+
+
+
+And remember, above all... do as I say, not how I code.
