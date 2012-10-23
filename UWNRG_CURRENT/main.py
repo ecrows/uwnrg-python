@@ -20,7 +20,7 @@ class  MainWindow:
         button -- object the action occured on
 
         """
-        comboConversion = {0 : facade.LEFT, 1 : facade.RIGHT, 2 : facade.UP, 3 : facade.DOWN, 4 : facade.CLOCKWISE, 5 : facade.CCLOCKWISE}
+        comboConversion = {0 : facade.DIRECTION["LEFT"], 1 : facade.DIRECTION["RIGHT"], 2 : facade.DIRECTION["UP"], 3 : facade.DIRECTION["DOWN"], 4 : facade.DIRECTION["CLOCKWISE"], 5 : facade.DIRECTION["CCLOCKWISE"]}
         direction = comboConversion[self.__builder.get_object("manual_control_instruction_combobox").get_active()]
         magnitude = self.__builder.get_object("manual_control_entry").get_text()
 
@@ -38,7 +38,7 @@ class  MainWindow:
 
         """
         key_pressed = event.keyval
-        combo_conversion = {97 : facade.LEFT, 100 : facade.RIGHT, 119 : facade.UP, 115 : facade.DOWN, 101 : facade.CLOCKWISE, 113 : facade.CCLOCKWISE}
+        combo_conversion = {97 : facade.DIRECTION["LEFT"], 100 : facade.DIRECTION["RIGHT"], 119 : facade.DIRECTION["UP"], 115 : facade.DIRECTION["DOWN"], 101 : facade.DIRECTION["CLOCKWISE"], 113 : facade.DIRECTION["CCLOCKWISE"]}
 
         if key_pressed in combo_conversion and self.__keyboard_input :
             direction = combo_conversion[key_pressed]

@@ -2,13 +2,10 @@ import movement.actuators as actuators
 import log as log
 
 ACTUATOR = "ACTUATOR"
-CLOCKWISE = actuators.CLOCKWISE
-CCLOCKWISE = actuators.CCLOCKWISE
-DEFAULT_MOVEMENT_MAGNITUDE = actuators.DEFAULT_MOVEMENT_MAGNITUDE
-DOWN = actuators.DOWN
-LEFT = actuators.LEFT
-RIGHT = actuators.RIGHT
-UP = actuators.UP
+
+movementController = actuators.Actuators()
+
+DIRECTION = {"CLOCKWISE" = movementController.CLOCKWISE, "CLOCKWISE" = movementController.CCLOCKWISE, "DEFAULT_MOVEMENT_MAGNITUDE" = movementController.DEFAULT_MOVEMENT_MAGNITUDE, "DOWN" = movementController.DOWN, "LEFT" = movementController.LEFT, "RIGHT" = movementController.RIGHT, "UP" = movementController.UP}
 
 #executes a single movement
 def move_immediate(magnitude, direction, inverted_x_axis, inverted_y_axis, mode):
@@ -23,7 +20,4 @@ def move_immediate(magnitude, direction, inverted_x_axis, inverted_y_axis, mode)
 
     """
 
-    if mode == ACTUATOR:
-        actuators.move_immediate(magnitude, direction, inverted_x_axis, inverted_y_axis)
-    else:
-        log.log_error("{0} is an unknown mode.".format(mode))
+    movementController.move_immediate(magnitude, direction, inverted_x_axis, inverted_y_axis)
