@@ -1,8 +1,2 @@
 class Controller():
-    CLOCKWISE = "CLOCKWISE"
-    CCLOCKWISE = "CCLOCKWISE"
-    DEFAULT_MOVEMENT_MAGNITUDE = 1
-    DOWN = "DOWN"
-    LEFT = "LEFT"
-    RIGHT = "RIGHT"
-    UP = "UP"
+    PLACEHOLDERVARIABLE = "get rid of this when something else is added"
