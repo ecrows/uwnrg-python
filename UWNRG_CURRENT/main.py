@@ -20,8 +20,12 @@ class  MainWindow:
         button -- object the action occured on
 
         """
-        direction_conversion = {0 : (-1, 0, 0), 1 : (1, 0, 0), 2 : (0, 1, 0),
-                               3 : (0, -1, 0), 4 : (0, 0, 1), 5 : (0, 0, -1)}
+        direction_conversion = {0: (-1, 0, 0),
+                                1: (1, 0, 0),
+                                2: (0, 1, 0),
+                                3: (0, -1, 0),
+                                4: (0, 0, 1),
+                                5: (0, 0, -1)}
         direction = direction_conversion[self.__builder.get_object(
                            "manual_control_instruction_combobox").get_active()]
         magnitude = self.__builder.get_object(
@@ -29,7 +33,7 @@ class  MainWindow:
 
         if magnitude.isdigit():
             magnitude = int(magnitude)
-            facade.move_immediate(tuple([magnitude * x for x in direction]),
+            facade.move_immediate(tuple(magnitude * x for x in direction),
                                   self.__x_axis_inverted,
                                   self.__y_axis_inverted)
         else:
@@ -44,9 +48,12 @@ class  MainWindow:
         event -- contains information about the key press event
 
         """
-        direction_conversion = {97 : (-1, 0, 0), 100 : (1, 0, 0),
-                                119 : (0, 1, 0), 115 : (0, -1, 0),
-                                101 : (0, 0, 1), 113 : (0, 0, -1)}
+        direction_conversion = {97: (-1, 0, 0),
+                                100: (1, 0, 0),
+                                119: (0, 1, 0),
+                                115: (0, -1, 0),
+                                101: (0, 0, 1),
+                                113: (0, 0, -1)}
         key_pressed = event.keyval
 
         if key_pressed in direction_conversion and self.__keyboard_input :
@@ -128,8 +135,8 @@ class  MainWindow:
         """
         help_window = self.__builder.get_object("help_window")
 
-        #do not listen for close events in order for the close button on the
-        #window to work, as you are unable to add a signal to the close button
+        # do not listen for close events in order for the close button on the
+        # window to work, as you are unable to add a signal to the close button
         help_window.run()
         help_window.hide()
 

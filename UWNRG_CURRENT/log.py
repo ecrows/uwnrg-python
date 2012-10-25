@@ -1,6 +1,6 @@
 class Log:
-    """ Follows the borg pattern described at http://code.activestate.com/recip
-    es/66531-singleton-we-dont-need-no-stinkin-singleton-the-bo/ Stores the
+    """ Follows the borg pattern described at
+    http://code.activestate.com/recipes/66531-singleton-we-dont-need-no-stinkin-singleton-the-bo/ Stores the
     buffer, and allows calls from all files to add to the log and clear it
 
     Public Methods:

@@ -15,14 +15,15 @@ class Actuators(controller.Controller):
         """
 
         flip_dict = [1,1,1]
+
         if invert_x_axis:
             #prepares the x and rotation direction to be flipped
-            flip_dict = tuple([i * j for i, j in zip(flip_dict, [-1, 1, -1])])
+            flip_dict = tuple(i * j for i, j in zip(flip_dict, [-1, 1, -1]))
 
         if invert_y_axis:
             #prepares the y and rotation direction to be flipped
-            flip_dict = tuple([i * j for i, j in zip(flip_dict, [1, -1, -1])])
+            flip_dict = tuple(i * j for i, j in zip(flip_dict, [1, -1, -1]))
 
-        vector = tuple([i * j for i, j in zip(flip_dict, vector)])
+        vector = tuple(i * j for i, j in zip(flip_dict, vector))
 
         log.log_info("Move Immediate - VECTOR: " + str(vector))
