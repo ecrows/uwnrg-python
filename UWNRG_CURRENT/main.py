@@ -121,8 +121,8 @@ class  MainWindow:
         """
         about_window = self.__builder.get_object("about_window")
 
-        #do not listen for close events in order for the close button on the
-        #window to work, as you are unable to add a signal to the close button
+        # do not listen for close events in order for the close button on the
+        # window to work, as you are unable to add a signal to the close button
         about_window.run()
         about_window.hide()
 
