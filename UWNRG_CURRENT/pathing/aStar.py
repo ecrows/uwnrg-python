@@ -1,59 +1,67 @@
-# UWaterloo Nano Robotics Group
-# A* Path Finding Algorithm
-
 from heapq import heappush, heappop
 from aStarNode import *
 
 #computes the A* path finding algorithm between two points
-def AStar(gridMap, xSize, ySize, xDirections, yDirections, xStart, yStart, xEnd, yEnd):
+def AStar(grid_map,
+          x_size,
+          y_size,
+          x_directions,
+          y_directions,
+          x_start,
+          y_start,
+          x_end,
+          y_end):
 
     #Handled nodes
-    closedNodes = [] 
+    closed_nodes = [] 
 
     #Unhandled nodes
-    openNodes = []
+    open_nodes = []
 
     #Directions taken
-    directionHistory = []
+    direction_history = []
 
 
     #Fill maps with empty rows in each column
-    row = [0] * xSize
-    for i in range(ySize):
-        closedNodes.append(list(row))
-        openNodes.append(list(row))
-        directionHistory.append(list(row))
+    row = [0] * x_size
+
+    for i in range(y_size):
+        closed_nodes.append(list(row))
+        open_nodes.append(list(row))
+        direction_history.append(list(row))
 
 
-    openQueue = [[], []]
-    oQIndex = 0
+    open_queue = [[], []]
+    o_q_index = 0
 
     #Create and store the starting node
-    n0 = AStarNode(xStart, yStart, 0, 0)
-    n0.updateScore(xEnd, yEnd)
-    heappush( openQueue[oQIndex], n0)
-    openNodes[yStart][xStart] = n0.score
+    n0 = AStarNode(x_start, y_start, 0, 0)
+    n0.updateScore(x_end, y_end)
+    heappush(open_queue[o_q_index], n0)
+    open_nodes[y_start][x_start] = n0.score
 
-    while len(openQueue[oQIndex]) > 0:
-        n1 = openQueue[oQIndex][0] 
-        n0 = AStarNode(n1.xPosition, n1.yPosition, n1.totalDistance, n1.score)
+    while len(open_queue[o_q_index]) > 0:
+        n1 = open_queue[o_q_index][0]
+        n0 = AStarNode(n1.x_position,
+                       n1.y_position,
+                       n1.total_distance,
+                       n1.score)
         x = n0.xPosition
         y = n0.yPosition
-        heappop(openQueue[oQIndex]) 
-        openNodes[y][x] = 0
-        closedNodes[y][x] = 1 
+        heappop(open_queue[o_q_index])
+        open_nodes[y][x] = 0
+        closed_nodes[y][x] = 1
 
         #if the current position has hit the target position
-        if x == xEnd and y == yEnd:
-            
+        if x == x_end and y == y_end:
             #Store off the directions by retracing over the direction map
             path = ''
-            while not (x == xStart and y == yStart):
-                j = directionHistory[y][x]
+            while not (x == x_start and y == y_start):
+                j = direction_history[y][x]
                 c = str((j + 4) % 8)
                 path = c + path
-                x += xDirections[j]
-                y += yDirections[j]
+                x += x_directions[j]
+                y += y_directions[j]
 
             #return the final path
             return path
@@ -63,45 +71,57 @@ def AStar(gridMap, xSize, ySize, xDirections, yDirections, xStart, yStart, xEnd,
         for i in range(8):
 
             #grab the next cell index in the selected direction
-            xdx = x + xDirections[i]
-            ydy = y + yDirections[i]
+            xdx = x + x_directions[i]
+            ydy = y + y_directions[i]
 
-            #If the position is not outside of the grid, the position is not a wall, and the position has not been handled..
-            if not (xdx < 0 or xdx > xSize-1 or ydy < 0 or ydy > ySize - 1 or gridMap[ydy][xdx] == 1 or closedNodes[ydy][xdx] == 1):
+            #If the position is not outside of the grid, the position is not a
+            #wall, and the position has not been handled..
+            if not (xdx < 0 or xdx > x_size - 1 or ydy < 0 or ydy > y_size - 1
+                    or grid_map[ydy][xdx] == 1 or closed_nodes[ydy][xdx] == 1):
 
                 #Make a node
-                m0 = AStarNode(xdx, ydy, n0.totalDistance, n0.score)
+                m0 = AStarNode(xdx, ydy, n0.total_distance, n0.score)
 
                 #Perform distance calculation and set score
                 m0.adjustDistance(i)
-                m0.updateScore(xEnd, yEnd)
+                m0.updateScore(x_end, y_end)
 
-                #If the open map element has not been set, set it and update the direction map
-                if openNodes[ydy][xdx] == 0:
-                    openNodes[ydy][xdx] = m0.score
-                    heappush(openQueue[oQIndex], m0)
-                    directionHistory[ydy][xdx] = (i + 4) % 8 #Want to store the reverse direction, for ease of processing later.
+                #If the open map element has not been set,
+                #set it and update the direction map
+                if open_nodes[ydy][xdx] == 0:
+                    open_nodes[ydy][xdx] = m0.score
+                    heappush(open_queue[o_q_index], m0)
+
+                    #Want to store the reverse direction,
+                    #for ease of processing later.
+                    direction_history[ydy][xdx] = (i + 4) % 8
 
                 #We also process if the new node has a better score
-                elif openNodes[ydy][xdx] > m0.score:
-                    openNodes[ydy][xdx] = m0.score
-                    directionHistory[ydy][xdx] = (i + 4) % 8 #Want to store the reverse direction, for ease of processing later.
+                elif open_nodes[ydy][xdx] > m0.score:
+                    open_nodes[ydy][xdx] = m0.score
 
-                    while not (openQueue[oQIndex][0].xPosition == xdx and openQueue[oQIndex][0].yPosition == ydy):
-                        heappush(openQueue[1 - oQIndex], openQueue[oQIndex][0])
-                        heappop(openQueue[oQIndex])
+                    #Want to store the reverse direction,
+                    #for ease of processing later.
+                    direction_history[ydy][xdx] = (i + 4) % 8
+                    while not (open_queue[o_q_index][0].x_position == xdx
+                               and open_queue[o_q_index][0].y_position == ydy):
+                        heappush(open_queue[1 - o_q_index],
+                                 open_queue[o_q_index][0])
+                        heappop(open_queue[o_q_index])
 
-                    heappop(openQueue[oQIndex])
+                    heappop(open_queue[o_q_index])
 
-                    if len(openQueue[oQIndex]) > len(openQueue[1 - oQIndex]):
-                        oQIndex = 1 - oQIndex
+                    if len(open_queue[o_q_index]) >
+                       len(open_queue[1 - o_q_index]):
+                        o_q_index = 1 - o_q_index
 
-                    while len(openQueue[oQIndex]) > 0:
-                        heappush(openQueue[1-oQIndex], openQueue[oQIndex][0])
-                        heappop(openQueue[oQIndex])      
+                    while len(open_queue[o_q_index]) > 0:
+                        heappush(open_queue[1-o_q_index],
+                                 open_queue[o_q_index][0])
+                        heappop(open_queue[o_q_index])
 
-                    oQIndex = 1 - oQIndex
-                    heappush(openQueue[oQIndex], m0)
-    
+                    o_q_index = 1 - o_q_index
+                    heappush(open_queue[o_q_index], m0)
+
     #No path found, so return empty route
     return ''

@@ -1,43 +1,53 @@
-# UWaterloo Nano Robotics Group
-# A* Path Finding Algorithm
-
 import time
 from aStar import *
 from random import randint
 
-#Configure the direction vectors - 8 different directions since we can move diagonally
-xDirections = [1, 1, 0, -1, -1, -1, 0, 1]
-yDirections = [0, 1, 1, 1, 0, -1, -1, -1]
+#Configure the direction vectors - 8 different directions since we can
+#move diagonally
+x_directions = [1, 1, 0, -1, -1, -1, 0, 1]
+y_directions = [0, 1, 1, 1, 0, -1, -1, -1]
 
 #Configure the size of the map
-xSize = 32
-ySize = 32
+x_size = 32
+y_size = 32
 
 #Create the map itself
-gridMap = []
+grid_map = []
 
 #insert a bunch of empty rows into the columns of the map
-row = [0] * xSize
-for i in range(ySize):
-    gridMap.append(list(row))
+row = [0] * x_size
+for i in range(y_size):
+    grid_map.append(list(row))
 
 #add some obstacles - this makes a "plus" shape in the center
-for x in range(xSize / 8, xSize * 7 / 8):
-    gridMap[ySize / 2][x] = 1
-for y in range(ySize/8, ySize * 7 / 8):
-    gridMap[y][xSize / 2] = 1
+for x in range(x_size / 8, x_size * 7 / 8):
+    grid_map[y_size / 2][x] = 1
+for y in range(y_size/8, y_size * 7 / 8):
+    grid_map[y][x_size / 2] = 1
 
 #add some more random obstacles
-for z in range(0,80):
-    gridMap[randint(0,xSize-1)][randint(0,ySize-1)] = 1
+for z in range(0, 80):
+    grid_map[randint(0, x_size - 1)][randint(0, y_size - 1)] = 1
 
 #set starting and ending points to map
-(xStart, yStart, xEnd, yEnd) = (0,0, randint(0,xSize-1), randint(0,ySize-1))
+(x_start, y_start, x_end, y_end) = (0,
+                                    0,
+                                    randint(0, x_size - 1),
+                                    randint(0, y_size - 1)
+                                   )
 
 
 #time and perform the A* algorithm
 t = time.time()
-route = AStar(gridMap, xSize, ySize, xDirections, yDirections, xStart, yStart, xEnd, yEnd)
+route = AStar(grid_map,
+              x_size,
+              y_size,
+              x_directions,
+              y_directions,
+              x_start,
+              y_start,
+              x_end,
+              y_end)
 print 'Time to generate the path: ', time.time() - t
 
 
@@ -45,35 +55,41 @@ print 'Time to generate the path: ', time.time() - t
 if len(route) > 0:
 
     #flag the start position index
-    x = xStart
-    y = yStart
-    gridMap[y][x] = 2
+    x = x_start
+    y = y_start
+    grid_map[y][x] = 2
 
     #loop over the route and set the map indices to the Route setting
     for i in range(len(route)):
         j = int(route[i])
-        x += xDirections[j]
-        y += yDirections[j]
-        gridMap[y][x] = 3
+        x += x_directions[j]
+        y += y_directions[j]
+        grid_map[y][x] = 3
 
     #flag the end position index
-    gridMap[y][x] = 4
+    grid_map[y][x] = 4
 
 
 
 print 'Final Grid:'
-for y in range(ySize):
-    for x in range(xSize):
-        gridElement = gridMap[y][x]
-        if gridElement == 0:
-            print '-', # open space
-        elif gridElement == 1:
-            print ' ', # wall
-        elif gridElement == 2:
-            print 'S', # start position
-        elif gridElement == 3:
-            print '*', # route location
-        elif gridElement == 4:
-            print 'E', # end position
+for y in range(y_size):
+    for x in range(x_size):
+        grid_element = grid_map[y][x]
+
+        # open space
+        if grid_element == 0:
+            print '-',
+        # wall
+        elif grid_element == 1:
+            print ' ',
+        # start position
+        elif grid_element == 2:
+            print 'S',
+        # route location
+        elif grid_element == 3:
+            print '*',
+        # end position
+        elif grid_element == 4:
+            print 'E',
 
     print ''
