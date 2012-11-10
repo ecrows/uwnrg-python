@@ -1,36 +1,29 @@
 import log as log
+import movement.controller as controller
 
-CLOCKWISE = "CLOCKWISE"
-CCLOCKWISE = "CCLOCKWISE"
-DEFAULT_MOVEMENT_MAGNITUDE = 1
-DOWN = "DOWN"
-LEFT = "LEFT"
-RIGHT = "RIGHT"
-UP = "UP"
+class Actuators(controller.Controller):
 
-def move_immediate(magnitude, direction, invert_x_axis, invert_y_axis):
-    """ Given input parameters, moves the robot appropriately
+    def move_immediate(self, vector, invert_x_axis, invert_y_axis):
+        """ Given input parameters, moves the robot appropriately
 
-    Keyword Arguments:
-    magnitude -- scalar quantity for movement
-    direciton -- direction of movement
-    invert_x_axis -- boolean of whether to invert on the x-axis
-    invert_y_axis -- boolean of whether to invert on the y-axis
+        Keyword Arguments:
+        self -- actuator object the function was called on
+        vector -- movement vector
+        invert_x_axis -- boolean of whether to invert on the x-axis
+        invert_y_axis -- boolean of whether to invert on the y-axis
 
-    """
-    flip = {LEFT : RIGHT, RIGHT : LEFT, UP : DOWN, DOWN  :UP, CLOCKWISE : CCLOCKWISE, CCLOCKWISE : CLOCKWISE}
+        """
 
-    ################################################################
-    #DONT KNOW IF THIS MAKES STUFF EASIER TAYLOR, IF NOT, DELETE IT#
-    if (magnitude < 0):
-        direction = flip[direction]
-        magnitude *= -1
-    ################################################################
+        flip_dict = [1,1,1]
 
-    if (direction == LEFT or direction == RIGHT or direction == CLOCKWISE or direction == CCLOCKWISE) and invert_x_axis:
-        direction = flip[direction]
+        if invert_x_axis:
+            #prepares the x and rotation direction to be flipped
+            flip_dict = tuple(i * j for i, j in zip(flip_dict, [-1, 1, -1]))
 
-    if (direction == UP or direction == DOWN or direction == CLOCKWISE or direction == CCLOCKWISE) and invert_y_axis:
-        direction = flip[direction]
+        if invert_y_axis:
+            #prepares the y and rotation direction to be flipped
+            flip_dict = tuple(i * j for i, j in zip(flip_dict, [1, -1, -1]))
 
-    log.log_info("Move Immediate - MAGNITUDE: " + str(magnitude) + "    DIRECTION: " + str(direction))
+        vector = tuple(i * j for i, j in zip(flip_dict, vector))
+
+        log.log_info("Move Immediate - VECTOR: " + str(vector))
