@@ -1,11 +1,11 @@
 import time
-from aStar import *
-from random import randint
+import pathing.astar as astar
+import random as random
 
-#Configure the direction vectors - 8 different directions since we can
-#move diagonally
-x_directions = [1, 1, 0, -1, -1, -1, 0, 1]
-y_directions = [0, 1, 1, 1, 0, -1, -1, -1]
+#x_directions = [1, 1, 0, -1, -1, -1, 0, 1]
+#y_directions = [0, 1, 1, 1, 0, -1, -1, -1]
+x_directions = [1, 0, -1, 0]
+y_directions = [0, 1, 0, -1]
 
 #Configure the size of the map
 x_size = 32
@@ -27,29 +27,23 @@ for y in range(y_size/8, y_size * 7 / 8):
 
 #add some more random obstacles
 for z in range(0, 80):
-    grid_map[randint(0, x_size - 1)][randint(0, y_size - 1)] = 1
+    grid_map[random.randint(0, x_size - 1)][random.randint(0, y_size - 1)] = 1
 
 #set starting and ending points to map
 (x_start, y_start, x_end, y_end) = (0,
                                     0,
-                                    randint(0, x_size - 1),
-                                    randint(0, y_size - 1)
-                                   )
-
+                                    random.randint(0, x_size - 1),
+                                    random.randint(0, y_size - 1))
 
 #time and perform the A* algorithm
 t = time.time()
-route = AStar(grid_map,
-              x_size,
-              y_size,
-              x_directions,
-              y_directions,
+pathing = astar.AStar()
+route = pathing.calculate_route(grid_map,
               x_start,
               y_start,
               x_end,
               y_end)
 print 'Time to generate the path: ', time.time() - t
-
 
 #if a valid route was returned
 if len(route) > 0:
@@ -69,8 +63,6 @@ if len(route) > 0:
     #flag the end position index
     grid_map[y][x] = 4
 
-
-
 print 'Final Grid:'
 for y in range(y_size):
     for x in range(x_size):
@@ -78,16 +70,16 @@ for y in range(y_size):
 
         # open space
         if grid_element == 0:
-            print '-',
+            print '.',
         # wall
         elif grid_element == 1:
-            print ' ',
+            print 'X',
         # start position
         elif grid_element == 2:
             print 'S',
         # route location
         elif grid_element == 3:
-            print '*',
+            print 'O',
         # end position
         elif grid_element == 4:
             print 'E',
