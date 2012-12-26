@@ -2,11 +2,6 @@ import time
 import pathing.astar as astar
 import random as random
 
-#x_directions = [1, 1, 0, -1, -1, -1, 0, 1]
-#y_directions = [0, 1, 1, 1, 0, -1, -1, -1]
-x_directions = [1, 0, -1, 0]
-y_directions = [0, 1, 0, -1]
-
 #Configure the size of the map
 x_size = 32
 y_size = 32
@@ -27,13 +22,18 @@ for y in range(y_size/8, y_size * 7 / 8):
 
 #add some more random obstacles
 for z in range(0, 80):
-    grid_map[random.randint(0, x_size - 1)][random.randint(0, y_size - 1)] = 1
+    grid_map[random.randint(0, y_size - 1)][random.randint(0, x_size - 1)] = 1
 
 #set starting and ending points to map
 (x_start, y_start, x_end, y_end) = (0,
                                     0,
                                     random.randint(0, x_size - 1),
                                     random.randint(0, y_size - 1))
+
+while (grid_map[y_end][x_end] == 1):
+    (x_end, y_end) = (random.randint(0, x_size - 1),
+                      random.randint(0, y_size - 1))
+
 
 #time and perform the A* algorithm
 t = time.time()
@@ -45,28 +45,27 @@ route = pathing.calculate_route(grid_map,
               y_end)
 print 'Time to generate the path: ', time.time() - t
 
+#flag the start position index
+x = x_start
+y = y_start
+grid_map[y][x] = 2
+
 #if a valid route was returned
 if len(route) > 0:
 
-    #flag the start position index
-    x = x_start
-    y = y_start
-    grid_map[y][x] = 2
-
     #loop over the route and set the map indices to the Route setting
-    for i in range(len(route)):
-        j = int(route[i])
-        x += x_directions[j]
-        y += y_directions[j]
+    for i in route:
+        x += i[0]
+        y += i[1]
         grid_map[y][x] = 3
 
-    #flag the end position index
-    grid_map[y][x] = 4
+#flag the end position index
+grid_map[y_end][x_end] = 4
 
 print 'Final Grid:'
 for y in range(y_size):
     for x in range(x_size):
-        grid_element = grid_map[y][x]
+        grid_element = grid_map[y_size-1-y][x]
 
         # open space
         if grid_element == 0:
