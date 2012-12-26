@@ -8,8 +8,6 @@ y_size = 32
 
 #Create the map itself
 grid_map = []
-
-#insert a bunch of empty rows into the columns of the map
 row = [0] * x_size
 for i in range(y_size):
     grid_map.append(list(row))
@@ -30,10 +28,10 @@ for z in range(0, 80):
                                     random.randint(0, x_size - 1),
                                     random.randint(0, y_size - 1))
 
+#ensure stop is not on an obstacle
 while (grid_map[y_end][x_end] == 1):
     (x_end, y_end) = (random.randint(0, x_size - 1),
                       random.randint(0, y_size - 1))
-
 
 #time and perform the A* algorithm
 t = time.time()
@@ -52,7 +50,6 @@ grid_map[y][x] = 2
 
 #if a valid route was returned
 if len(route) > 0:
-
     #loop over the route and set the map indices to the Route setting
     for i in route:
         x += i[0]

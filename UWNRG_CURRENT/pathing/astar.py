@@ -120,6 +120,7 @@ class AStar(pathing.Pathing):
 
             self.__cost = self.__distance + self.__dist_est(dest_node)
 
+        #properties
         cost = property(lambda self: self.__cost)
         distance = property(lambda self: self.__distance)
         x_position = property(lambda self: self.__position['x'])
