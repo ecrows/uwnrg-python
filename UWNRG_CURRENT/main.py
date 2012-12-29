@@ -152,12 +152,20 @@ class  MainWindow:
         menu_item -- object the action occured on
 
         """
-
+        #set the combo box values
         com_port_combo = self.__builder.get_object("com_port_combo")
         available_com_ports = facade.get_available_com_ports()
+        com_port_liststore = self.__builder.get_object("com_port_liststore")
+        com_port_liststore.clear()
 
-        for i in available_com_ports:
-            com_port_combo.append_text(i[0])
+        for com_port_info in available_com_ports:
+            com_port_combo.append_text(com_port_info[0])
+
+        com_port_combo.set_active(0)
+
+        #set the current actuator step value in the textbox
+        actuator_step_entry = self.__builder.get_object("actuator_step_entry")
+        actuator_step_entry.set_text(str(self.__actuator_step))
 
         actuator_setup_window = self.__builder.get_object("actuator_setup_window")
         # do not listen for close events in order for the close button on the
@@ -165,9 +173,10 @@ class  MainWindow:
         actuator_setup_window.run()
         actuator_setup_window.hide()
 
+        #sets the com-port for the actuators
         facade.set_com_port(com_port_combo.get_active_text())
 
-        actuator_step_entry = self.__builder.get_object("actuator_step_entry")
+        #sets the actuator step
         actuator_step = actuator_step_entry.get_text()
 
         if actuator_step.isdigit():
@@ -175,6 +184,14 @@ class  MainWindow:
         else:
             log.log_error("The magnitude of actuator step must be an integer,"\
                           " '{0}' is not an integer.".format(magnitude))
+
+        #switches the actuator axis if the box was checked
+        switch_actuator_axis = self.__builder.get_object("switch_actuator_axis")
+
+        if switch_actuator_axis.get_active():
+            facade.switch_actuator_axis()
+            switch_actuator_axis.set_active(False)
+
 
     def __switch_mode_EMMA(self, check_menu_item):
         """ Checks to see if EMMA mode is being enabled

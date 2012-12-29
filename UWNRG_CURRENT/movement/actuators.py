@@ -42,8 +42,6 @@ class Actuators():
                  "HOME_OFFSET":47,
                  "SPEED":42}
     __properties = {}
-    __x_device = 1
-    __y_device = 2
 
     def flush_buffers(self):
         """ Clears the input and output buffer for the serial connection """
@@ -109,6 +107,9 @@ class Actuators():
         self.__ser = serial.Serial(com_port)
         self.flush_buffers()
 
+        self.__x_device = 1
+        self.__y_device = 2
+
         self.__num_devices = None
         self.__num_devices = len(self.__issue_command(0, 55, 0, 0, 0, 0))
 
@@ -136,6 +137,7 @@ class Actuators():
         invert_y_axis -- boolean of whether to invert on the y-axis
 
         """
+        #X Axis
         device = self.__x_device
 
         if invert_x_axis:
@@ -150,6 +152,7 @@ class Actuators():
                              byte_array[2],
                              byte_array[3])
 
+        #Y Axis
         device =  self.__y_device
 
         if invert_y_axis:
@@ -175,6 +178,7 @@ class Actuators():
         invert_y_axis -- boolean of whether to invert on the y-axis
 
         """
+        #X Axis
         device = self.__x_device
 
         if invert_x_axis:
@@ -190,6 +194,7 @@ class Actuators():
                              byte_array[2],
                              byte_array[3])
 
+        #Y Axis
         device = self.__y_device
 
         if invert_y_axis:
@@ -294,3 +299,9 @@ class Actuators():
         else:
             log.log_error("The specified setting '{0}' is not currently " \
                           "supported".format(setting))
+
+    def switch_actuator_axis(self):
+        """ Toggles which device is responsible for x and y axis movement """
+        temp = self.__y_device
+        self.__y_device = self.__x_device
+        self.__x_device = temp

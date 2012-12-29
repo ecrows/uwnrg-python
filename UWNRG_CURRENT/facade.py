@@ -39,3 +39,7 @@ def get_available_com_ports():
 def set_com_port(com_port):
     """ Sets the com-port to use for actuator communication """
     _movement_controller.initialize_actuators(com_port)
+
+def switch_actuator_axis():
+    """ Toggles which device is responsible for x and y axis movement """
+    _movement_controller.switch_actuator_axis()

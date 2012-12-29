@@ -70,6 +70,13 @@ class Controller():
             else:
                 log.log_error("Actuators need to be setup.")
 
+    def switch_actuator_axis(self):
+        """ Toggles which device is responsible for x and y axis movement """
+        if self.__actuators:
+            self.__actuators.switch_actuator_axis()
+        else:
+            log.log_error("Actuators need to be setup.")
+
     def switch_to_EMMA(self):
         """ Switches the controller to EMMA mode """
         log.log_info("Switched to EMMA mode")

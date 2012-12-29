@@ -40,6 +40,17 @@ Garry Ng</property>
       </object>
     </child>
   </object>
+  <object class="GtkListStore" id="com_port_liststore">
+    <columns>
+      <!-- column-name com-port -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">problem with clearing liststore if you can see this</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkDialog" id="actuator_setup_window">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -49,6 +60,96 @@ Garry Ng</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="spacing">2</property>
+        <child>
+          <object class="GtkTable" id="table1">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="n_rows">2</property>
+            <property name="n_columns">2</property>
+            <child>
+              <object class="GtkComboBox" id="com_port_combo">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">com_port_liststore</property>
+                <property name="active">0</property>
+                <child>
+                  <object class="GtkCellRendererText" id="com_port_combo_options"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="comport_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xpad">10</property>
+                <property name="ypad">10</property>
+                <property name="label" translatable="yes">Select an active
+com-port:</property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkLabel" id="actuator_step_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xpad">10</property>
+                <property name="ypad">10</property>
+                <property name="label" translatable="yes">Actuator Step
+- units per key press -</property>
+                <property name="justify">center</property>
+              </object>
+              <packing>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="actuator_step_entry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">●</property>
+                <property name="invisible_char_set">True</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="switch_actuator_axis">
+            <property name="label" translatable="yes">Switch Actuator Axes Upon 'OK'</property>
+            <property name="use_action_appearance">False</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">False</property>
+            <property name="draw_indicator">True</property>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
         <child internal-child="action_area">
           <object class="GtkHButtonBox" id="dialog-action_area5">
             <property name="visible">True</property>
@@ -79,91 +180,11 @@ Garry Ng</property>
             <property name="position">1</property>
           </packing>
         </child>
-        <child>
-          <object class="GtkTable" id="table1">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="n_rows">2</property>
-            <property name="n_columns">2</property>
-            <child>
-              <object class="GtkComboBox" id="com_port_combo">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="model">com_port_liststore</property>
-                <property name="active">0</property>
-                <child>
-                  <object class="GtkCellRendererText" id="com_port_combo_options"/>
-                  <attributes>
-                    <attribute name="text">0</attribute>
-                  </attributes>
-                </child>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkLabel" id="comport_label">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="label" translatable="yes">com-port:</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel" id="actuator_step_label">
-                <property name="visible">True</property>
-                <property name="can_focus">False</property>
-                <property name="ypad">10</property>
-                <property name="label" translatable="yes">Actuator Step
-- units per key press -</property>
-                <property name="justify">center</property>
-              </object>
-              <packing>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkEntry" id="actuator_step_entry">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="invisible_char">●</property>
-                <property name="primary_icon_activatable">False</property>
-                <property name="secondary_icon_activatable">False</property>
-                <property name="primary_icon_sensitive">True</property>
-                <property name="secondary_icon_sensitive">True</property>
-              </object>
-              <packing>
-                <property name="left_attach">1</property>
-                <property name="right_attach">2</property>
-                <property name="top_attach">1</property>
-                <property name="bottom_attach">2</property>
-              </packing>
-            </child>
-          </object>
-          <packing>
-            <property name="expand">True</property>
-            <property name="fill">True</property>
-            <property name="position">10</property>
-          </packing>
-        </child>
       </object>
     </child>
     <action-widgets>
       <action-widget response="0">close_help_button1</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkListStore" id="com_port_liststore">
-    <columns>
-      <!-- column-name com-port -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">&lt;choose an available com-port&gt;</col>
-      </row>
-    </data>
   </object>
   <object class="GtkDialog" id="help_window">
     <property name="can_focus">False</property>
