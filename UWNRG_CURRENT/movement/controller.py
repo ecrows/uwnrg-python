@@ -4,6 +4,7 @@ import movement.actuators as actuators
 _EMMA = "EMMA"
 
 class Controller():
+    """ Facade for all controlling modes """
     def get_available_com_ports(self):
         """ Returns a list of available com-ports """
         return actuators.get_available_com_ports()
@@ -45,7 +46,8 @@ class Controller():
                                       inverted_y_axis)
                 #haven't implemented rotation yet
             else:
-                log.log_error("Actuators need to be setup.")
+                log.log_error("Actuator have not been initialized" \
+                              " with a com-port properly.")
 
     def move_to(self, vector, inverted_x_axis, inverted_y_axis):
         """ Sends the movement instruction to the appropriate control system
@@ -58,8 +60,8 @@ class Controller():
         """
         if self.__control_schema == _EMMA:
             if len(vector) != 3:
-                log.log_error("3 arguments were expected, " \
-                              "{0} were given.".format(len(vector)))
+                log.log_error("3 arguments were expected " \
+                              "({0} given).".format(len(vector)))
                 return
 
             if self.__actuators:
@@ -68,14 +70,16 @@ class Controller():
                                          inverted_y_axis)
                 #haven't implemented rotation yet
             else:
-                log.log_error("Actuators need to be setup.")
+                log.log_error("Actuator have not been initialized" \
+                              " with a com-port properly.")
 
     def switch_actuator_axis(self):
         """ Toggles which device is responsible for x and y axis movement """
         if self.__actuators:
             self.__actuators.switch_actuator_axis()
         else:
-            log.log_error("Actuators need to be setup.")
+            log.log_error("Actuator have not been initialized" \
+                          " with a com-port properly.")
 
     def switch_to_EMMA(self):
         """ Switches the controller to EMMA mode """
