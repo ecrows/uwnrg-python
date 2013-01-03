@@ -1,7 +1,8 @@
 # Output frames must be processed within 0.033 to make the camera the bottleneck.
 
 # Current plan:
-# Run the image recognition to determine the layout of the field, then just find the position of the robot based on changes.
+# Run the image recognition to determine the layout of the field, then just
+# find the position of the robot based on changes.
 
 import cv2
 import time
@@ -34,7 +35,7 @@ while rval:
     medfilt=cv2.medianBlur(gray, 7) #must be odd
     tr=cv2.adaptiveThreshold(medfilt,255,0,1,11,2)
     edges = cv2.Canny(medfilt, 80, 120)
-  
+
     if (render == 1):
         cv2.imshow("preview", edges)
 
