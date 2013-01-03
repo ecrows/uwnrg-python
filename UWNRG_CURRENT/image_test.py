@@ -1,4 +1,4 @@
-import imaging.imaging as imaging
+import imaging.image_recognition as imaging
 
 irtest = imaging.ImageRecognition()
 irtest.process()
