@@ -66,3 +66,15 @@ def log_text(text):
     log = Log()
     i = log.get_buffer().get_end_iter()
     log.get_buffer().insert(i, text + '\n')
+
+def log_debug(text):
+    """ Formats the input and sends it to the Log's buffer
+
+    Keyword arguments:
+    text -- text to add to the buffer
+
+    """
+    log = Log()
+    i = log.get_buffer().get_end_iter()
+    log.get_buffer().insert(i, "DEBUG: ")
+    log_text(text)

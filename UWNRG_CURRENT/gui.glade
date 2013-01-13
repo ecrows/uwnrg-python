@@ -307,6 +307,7 @@ until someone writes the help documents.</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Take Picture</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_tools_menu_take_picture_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>

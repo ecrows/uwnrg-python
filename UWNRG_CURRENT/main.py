@@ -82,7 +82,8 @@ class  MainWindow:
                                           self.__keyboard_movement_instruction,
             "on_edit_menu_clear_log_activate" : self.__clear_log,
             "on_tools_menu_start_camera_feed_activate" : self.__start_camera,
-            "on_tools_menu_stop_camera_feed_activate" : self.__stop_camera
+            "on_tools_menu_stop_camera_feed_activate" : self.__stop_camera,
+            "on_tools_menu_take_picture_activate": self.__take_picture
         }
 
         self.__builder = gtk.Builder()
@@ -100,6 +101,9 @@ class  MainWindow:
                 "vertical_log_scroll_window_text_view").get_property('buffer'))
 
 
+        #self.__bin = gst.element_factory_make("camerabin")
+        #self.__bin.set_state(gst.STATE_PLAYING)
+
         # Set up the gstreamer pipeline
         self.__image_sink = None
 
@@ -107,13 +111,27 @@ class  MainWindow:
                                                     "camera_feed_drawing_area")
         self.__movie_window.window.ensure_native()
 
-        self.__player = gst.parse_launch ("ksvideosrc ! autovideosink")
+        self.__player = gst.parse_launch("ksvideosrc ! autovideosink")
         bus = self.__player.get_bus()
         bus.add_signal_watch()
         bus.enable_sync_message_emission()
+
+        self.__camerabin = gst.element_factory_make("camerabin", "cam")
+        self.__camerabin.set_property("video-source", self.__player)
+        #self.__camerabin.set_property("flicker-mode", 1)
+        self.__camerabin.set_property("filename", "C:/dev/uwnrg/UWNRG_CURRENT/foo.jpg")
+        #self.__camerabin.set_state(gst.STATE_PLAYING)
+
         bus.connect("message", self.__on_message)
         bus.connect("sync-message::element", self.__on_sync_message)
         self.__player.set_state(gst.STATE_PLAYING)
+
+    def __take_picture(self, menu_item):
+        log.log_debug("Camera taking picture.")
+        self.__camerabin.emit("capture-start")
+
+    def image_captured(self):
+        print "YESH"
 
     def __invert_x_axis(self, check_menu_item):
         """ Updates x inversion variable
@@ -139,9 +157,15 @@ class  MainWindow:
         if t == gst.MESSAGE_EOS:
             self.__player.set_state(gst.STATE_NULL)
         elif t == gst.MESSAGE_ERROR:
+            print "test"
             err, debug = message.parse_error()
             log.log_error("{0}, {1}".format(err, debug))
             self.__player.set_state(gst.STATE_NULL)
+        elif t == gst.MESSAGE_ELEMENT:
+            if message.structure.get_name() == "image-captured":
+                log.log_info("Picture taken.")
+                self.camerabin.set_state(gst.STATE_NULL)
+                self.camerabin.set_state(gst.STATE_PLAYING)
 
     def __on_sync_message(self, bus, message):
         if message.structure is None:
@@ -154,6 +178,7 @@ class  MainWindow:
             self.__image_sink = message.src
             self.__image_sink.set_property("force-aspect-ratio", True)
             self.__image_sink.set_xwindow_id(self.__movie_window.window.handle)
+            self.__camerabin.set_property("viewfinder-sink", self.__image_sink)
 
     def __open_about_window(self, menu_item):
         """ Opens the about program window
