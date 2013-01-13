@@ -80,13 +80,14 @@ class  MainWindow:
                                                   self.__toggle_keyboard_input,
             "on_main_window_key_press_event" :
                                           self.__keyboard_movement_instruction,
-            "on_edit_menu_clear_log_activate" : self.__clear_log
+            "on_edit_menu_clear_log_activate" : self.__clear_log,
+            "on_tools_menu_start_camera_feed_activate" : self.__start_camera,
+            "on_tools_menu_stop_camera_feed_activate" : self.__stop_camera
         }
 
         self.__builder = gtk.Builder()
         self.__builder.add_from_file(filename)
         self.__builder.connect_signals(handlers)
-        self.__movie_window = self.__builder.get_object("camera_feed_drawing_area")
         self.__builder.get_object("main_window").show_all()
 
         self.__keyboard_input = True
@@ -98,51 +99,21 @@ class  MainWindow:
         self.__log.set_buffer(self.__builder.get_object(
                 "vertical_log_scroll_window_text_view").get_property('buffer'))
 
+
+        # Set up the gstreamer pipeline
+        self.__image_sink = None
+
+        self.__movie_window = self.__builder.get_object(
+                                                    "camera_feed_drawing_area")
         self.__movie_window.window.ensure_native()
 
-        # Set up the gstreamer pipeline
-        self.player = gst.parse_launch ("ksvideosrc ! autovideosink")
-        self.__image_sink = None
-        bus = self.player.get_bus()
+        self.__player = gst.parse_launch ("ksvideosrc ! autovideosink")
+        bus = self.__player.get_bus()
         bus.add_signal_watch()
         bus.enable_sync_message_emission()
-        bus.connect("message", self.on_message)
-        bus.connect("sync-message::element", self.on_sync_message)
-        self.player.set_state(gst.STATE_PLAYING)
-
-    def on_message(self, bus, message):
-        t = message.type
-        if t == gst.MESSAGE_EOS:
-            self.player.set_state(gst.STATE_NULL)
-            self.button.set_label("Start")
-        elif t == gst.MESSAGE_ERROR:
-            err, debug = message.parse_error()
-            print "Error: %s" % err, debug
-            self.player.set_state(gst.STATE_NULL)
-            self.button.set_label("Start")
-
-    def on_sync_message(self, bus, message):
-        if message.structure is None:
-            return
-        message_name = message.structure.get_name()
-        if message_name == "prepare-xwindow-id":
-            # Assign the viewport
-            self.__image_sink = message.src
-            self.__image_sink.set_property("force-aspect-ratio", True)
-            self.__image_sink.set_xwindow_id(self.__movie_window.window.handle)
-
-
-        """imagesink = gst.element_factory_make("xvimagesink", "sink")
-        imagesink.set_property("force-aspect-ratio", True)
-        window_id(self.movie_window.window.xid)
-
-        # Set up the gstreamer pipeline
-        self.player = gst.parse_launch ("ksvideosrc device-index=0 ! ffmpegcolorspace ! autovideosink")
-        bus = self.player.get_bus()
-        bus.add_signal_watch()
-        bus.enable_sync_message_emission()
-        bus.connect("message", self.on_message)
-        self.player.set_state(gst.STATE_PLAYING)"""
+        bus.connect("message", self.__on_message)
+        bus.connect("sync-message::element", self.__on_sync_message)
+        self.__player.set_state(gst.STATE_PLAYING)
 
     def __invert_x_axis(self, check_menu_item):
         """ Updates x inversion variable
@@ -151,7 +122,7 @@ class  MainWindow:
         check_menu_item -- object the action occured on
 
         """
-        self.__x_axis_inverted ^= True;
+        self.__x_axis_inverted ^= True
 
     def __invert_y_axis(self, check_menu_item):
         """ Updates y inversion variable
@@ -160,7 +131,29 @@ class  MainWindow:
         check_menu_item -- object the action occured on
 
         """
-        self.__y_axis_inverted ^= True;
+        self.__y_axis_inverted ^= True
+
+    def __on_message(self, bus, message):
+        t = message.type
+
+        if t == gst.MESSAGE_EOS:
+            self.__player.set_state(gst.STATE_NULL)
+        elif t == gst.MESSAGE_ERROR:
+            err, debug = message.parse_error()
+            log.log_error("{0}, {1}".format(err, debug))
+            self.__player.set_state(gst.STATE_NULL)
+
+    def __on_sync_message(self, bus, message):
+        if message.structure is None:
+            return
+
+        message_name = message.structure.get_name()
+
+        if message_name == "prepare-xwindow-id":
+            # Assign the viewport
+            self.__image_sink = message.src
+            self.__image_sink.set_property("force-aspect-ratio", True)
+            self.__image_sink.set_xwindow_id(self.__movie_window.window.handle)
 
     def __open_about_window(self, menu_item):
         """ Opens the about program window
@@ -189,6 +182,14 @@ class  MainWindow:
         # window to work, as you are unable to add a signal to the close button
         help_window.run()
         help_window.hide()
+
+    def __start_camera(self, menu_item):
+        self.__player.set_state(gst.STATE_PLAYING)
+        log.log_info("Camera feed started.")
+
+    def __stop_camera(self, menu_item):
+        self.__player.set_state(gst.STATE_NULL)
+        log.log_info("Camera feed stopped.")
 
     def __toggle_keyboard_input(self, menu_item):
         """ Updates keyboard input variable
