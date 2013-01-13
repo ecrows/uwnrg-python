@@ -18,3 +18,5 @@ def move_immediate(vector, inverted_x_axis, inverted_y_axis):
     """
 
     movementController.move_immediate(vector, inverted_x_axis, inverted_y_axis)
+#TODO, movementController should be set in main
+#TODO, should not need to import actuators, easier to just import controller
