@@ -2,7 +2,7 @@ import cv2 as cv2
 import numpy as np
 import field as field
 
-class Figure8(field.FieldType):
+class Figure8(field.Field):
     def find_field(self, frame):
         """Returns array representation of rectangular field. Should be called
         *once* at the beginning of the challenge. Works only on an aligned
@@ -83,8 +83,6 @@ class Figure8(field.FieldType):
             cv2.line(fancyedges, pt1, pt2, (255,0,255), 3)
         #cv2.rectangle(fancyedges, centeravg, , (0,0,255), 3)
         """
-        # Output boundary lines for debug purposes (TODO: Remove)
-        self._show_eight_boundaries(fancyedges, leftline, rightline, botline, topline)
 
         # TODO: Find probable initial robot location to compensate?
 
@@ -96,34 +94,98 @@ class Figure8(field.FieldType):
 
         return (data)
 
-    def _show_boundaries(self, image, leftline, rightline, botline, topline):
-        """Draw rectangular boundaries on image specified by 'image'. Currently
-        hardcoded for a rectangular field.
+    def show_boundaries(self, frame):
+        """Attempt to find and display boundaries of field
+        and return image with lines drawn on.
 
-        #TODO: Should eventually take *lines* as input, not horiz/vert index.
+        TODO:Encapsulate boundary finding in another function.
 
         Keyword Arguments:
         image -- image to draw boundaries on
-        leftline -- leftline is the x co-ordinate of the vertical left line
-        rightline -- rightline is the x co-ordinate of the vertical right line
-        botline -- botline is the y co-ordinate of the horizontal left line
-        topline -- topline is the y co-ordinate of the horizontal left line
         """
-        pt1 = (0,topline)
-        pt2 = (620,topline)
-        cv2.line(image, pt1, pt2, (0,0,255), 3) 
+        # Performs initial filtering
+        # TODO: Balance arg values, link to UI for easy user adjustment
+        roi = frame[60:475, 20:620]        # avoid getting frame edges detected
+        gray=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
+        medfilt=cv2.medianBlur(gray, 7)    # aperture width must be odd.
+        tr=cv2.adaptiveThreshold(medfilt,255,0,1,11,2)
+        edges = cv2.Canny(medfilt, 80, 120)
 
-        pt1 = (0, botline)
-        pt2 = (620, botline)
-        cv2.line(image, pt1, pt2, (0,0,255), 3)
+        # Creates output grid, initializes boundaries around edges (wall = 1)
+        # TODO: Add boundaries efficiently (i.e. one pass)
+        data = np.zeros((self.GRID_H, self.GRID_W))
+        data[0:self.GRID_W, 0] = 1
+        data[0:self.GRID_W, self.GRID_W-1] = 1
+        data[0, 0:self.GRID_H] = 1
+        data[self.GRID_H-1, 0:self.GRID_H] = 1
 
-        pt1 = (rightline, 0)
-        pt2 = (rightline, 415)
-        cv2.line(image, pt1, pt2, (0,0,255), 3)
+        # Detect outer boundaries.
 
-        pt1 = (leftline, 0)
-        pt2 = (leftline, 415)
-        cv2.line(image, pt1, pt2, (0,0,255), 3)
+        topline = self._find_rect_boundary(edges, "top")
+        botline = self._find_rect_boundary(edges, "bottom")
+        leftline = self._find_rect_boundary(edges, "left")
+        rightline = self._find_rect_boundary(edges, "right")
+
+        # Update region of interest to cut down unnecessary processing
+        self.roi_top = topline + 10
+        self.roi_bot = botline - 10
+        self.roi_left = leftline + 10
+        self.roi_right = rightline - 10
+
+        # TODO: Balance arg values, link to UI for easy user adjustment
+        roi = frame[60:475, 20:620]        # avoid getting frame edges detected
+        gray=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
+        medfilt=cv2.medianBlur(gray, 7)    # aperture width must be odd.
+        tr=cv2.adaptiveThreshold(medfilt,255,0,1,11,2)
+        edges = cv2.Canny(medfilt, 80, 120)
+        fancyedges = cv2.cvtColor(edges,cv2.COLOR_GRAY2BGR)
+
+        # Creates output grid, initializes boundaries around edges (wall = 1)
+        # TODO: Add boundaries efficiently (i.e. one pass)
+        data = np.zeros((self.GRID_H, self.GRID_W))
+        data[0:self.GRID_W, 0] = 1
+        data[0:self.GRID_W, self.GRID_W-1] = 1
+        data[0, 0:self.GRID_H] = 1
+        data[self.GRID_H-1, 0:self.GRID_H] = 1
+
+        # Detect outer boundaries.
+
+        topline = self._find_rect_boundary(edges, "top")
+        botline = self._find_rect_boundary(edges, "bottom")
+        leftline = self._find_rect_boundary(edges, "left")
+        rightline = self._find_rect_boundary(edges, "right")
+
+        # Update region of interest to cut down unnecessary processing
+        # TODO: Also display ROI info on field display
+        self.roi_top = topline + 10
+        self.roi_bot = botline - 10
+        self.roi_left = leftline + 10
+        self.roi_right = rightline - 10
+
+        # Below are adjusted for ROI offset
+        # This should be changed when the threshold GUI is implemented
+        leftline += 20
+        rightline += 20
+        topline += 60
+        botline += 60
+
+        pt1 = (leftline,topline)
+        pt2 = (rightline,topline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 3) 
+
+        pt1 = (leftline, botline)
+        pt2 = (rightline, botline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 3)
+
+        pt1 = (rightline, botline)
+        pt2 = (rightline, topline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 3)
+
+        pt1 = (leftline, botline)
+        pt2 = (leftline, topline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 3)
+
+        return frame
 
     def find_robot(self, frame):
         """Finds the robot given a camera frame.

@@ -1,5 +1,9 @@
-class FieldType:
-    """"""
+class Field:
+    """
+    Contains methods for each field.
+    
+    """
+    
     # Region of interest that we're limiting processing to
     # This saves time and lets us avoid any borders
     roi_top = -1

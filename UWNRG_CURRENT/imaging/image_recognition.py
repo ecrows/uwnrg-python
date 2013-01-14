@@ -29,22 +29,30 @@ class ImageRecognition:
     # Type of field/challenge being performed
     # 0 = Figure Eight
     # 1 = Micro Assembly
+    ftype = 0
 
     def __init__(self, type="eight"):
         self.set_field_type(type)
+        pass
 
     def set_field_type(self, type):
-        """Set field type value
+        if (type == "eight"):
+            self.ftype = 0
+        elif (type == "micro"):
+            self.ftype = 1
+
+    def new_field(self):
+        """Return field object of type "type"
 
         Use "eight" to refer to Figure8.
         Use "micro" to refer to MicroAssembly.
 
         """
 
-        if (type == "eight"):
-            self.fieldtype = figure_eight.Figure8()
-        elif (type == "micro"):
-            self.fieldtype = micro_assembly.MicroAssembly()
+        if (self.ftype == 0):
+            return figure_eight.Figure8()
+        elif (self.ftype == 1):
+            return micro_assembly.MicroAssembly()
         else:
             # TODO: Make our own exception to raise here
             raise NameError("Invalid field type specified") 
@@ -70,13 +78,3 @@ class ImageRecognition:
 
         """
         self.fieldtype.find_robot(frame)
-
-    def process (self):
-        """Testing harness to see what's going on"""
-        vc = cv2.VideoCapture("MobilityRun1.wmv")
-        rval, frame = vc.read()
-
-        if (rval):
-            testput = self.find_field(frame)
-            np.set_printoptions(threshold='nan')
-            print testput
