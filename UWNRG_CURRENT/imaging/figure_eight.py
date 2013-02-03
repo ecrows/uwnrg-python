@@ -1,6 +1,6 @@
 import cv2 as cv2
 import numpy as np
-import field as field
+import fiel as field
 
 class Figure8(field.Field):
     def find_field(self, frame):
@@ -16,12 +16,12 @@ class Figure8(field.Field):
         # TODO: Balance arg values, link to UI for easy user adjustment
         roi = frame[60:475, 20:620]        # avoid getting frame edges detected
         gray=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
-        medfilt=cv2.medianBlur(gray, 7)    # aperture width must be odd.
-        tr=cv2.adaptiveThreshold(medfilt,255,0,1,11,2)
-        edges = cv2.Canny(medfilt, 80, 120)
+        medfilt=cv2.medianBlur(gray, self.medfilt_width)    # aperture width must be odd.
+        tr=cv2.adaptiveThreshold(medfilt,255,0,1,self.adaptive_blocksize,self.adaptive_c)
+        edges = cv2.Canny(medfilt, self.canny_thresh1, self.canny_thresh2)
         fancyedges = cv2.cvtColor(edges,cv2.COLOR_GRAY2BGR)
 
-        # Creates output grid, initializes boundaries around edges (wall = 1)
+        # Creates output grid, initializes boundaries around edges (wall = 2)
         # TODO: Add boundaries efficiently (i.e. one pass)
         data = np.zeros((self.GRID_H, self.GRID_W))
         data[0:self.GRID_W, 0] = 1

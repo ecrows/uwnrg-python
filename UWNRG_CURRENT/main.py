@@ -58,7 +58,10 @@ class  MainWindow:
             "on_tools_menu_manual_keyboard_input_toggled" : self.__toggle_keyboard_input,
             "on_main_window_key_press_event" : self.__keyboard_movement_instruction,
             "on_edit_menu_clear_log_activate" : self.__clear_log,
-            "on_setup_menu_camera_activate" : self.__open_img_window
+            "on_setup_menu_camera_activate" : self.__open_img_window,
+            "on_img_ok_close_clicked" : self.__save_image_settings,
+            "on_tools_menu_stop_camera_feed_activate" : self.__stop_feed,
+            "on_tools_menu_start_camera_feed_activate" : self.__start_feed
         }
 
         self.__builder = gtk.Builder()
@@ -71,7 +74,7 @@ class  MainWindow:
         self.__mode = facade.ACTUATOR
         self.__x_axis_inverted = False
         self.__y_axis_inverted = False
-
+        self.__field = facade.init_field()
         self.__log.set_buffer(self.__builder.get_object("vertical_log_scroll_window_text_view").get_property('buffer'))
 
     def __invert_x_axis(self, check_menu_item):
@@ -128,13 +131,33 @@ class  MainWindow:
         self.__keyboard_input ^= True;
     def __open_img_window(self, menu_item):
         """ Opens the image settings window """
-        print("Hai")
         img_window = self.__builder.get_object("img_window")
 
         #do not listen for close events in order for the close button on the window to work, as you are unable to add a signal to the close button
         img_window.run()
         img_window.hide()
-        
+
+        #TODO: Backup old image settings, so that if they press "Cancel" old image settings are restored
+
+        # image window will display settings, camera feed will be displayed in separate window
+        # if time permits, camera feed should be embedded directly into window
+
+    def __save_image_settings(self, menu_item):
+        """ Update camera settings upon pressing OK """
+        facade.confirm_new_settings(med_width, ad_bsize, ad_const, can_low, can_high)
+
+    def __start_feed(self, menu_item):
+        """ Start camera feed, currently in new window """
+        if (self.__field.thread_running == False):
+            facade.start_feed(self.__field)
+            self.__field.thread_running = True
+
+    def __stop_feed(self, menu_item):
+        """ Terminate camera feed """
+        if (self.__field.thread_running == True):
+            facade.stop_feed(self.__field)
+            self.__field.thread_running = False
+
 
 app = MainWindow()
 gtk.main()
