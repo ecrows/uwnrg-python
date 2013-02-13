@@ -1,4 +1,4 @@
-import gtk
+import gtk as gtk
 import facade as facade
 import log as log
 
@@ -33,7 +33,7 @@ class  MainWindow:
 
         if magnitude.isdigit():
             magnitude = int(magnitude)
-            facade.move_immediate(tuple(magnitude * x for x in direction),
+            facade.move(tuple(magnitude * x for x in direction),
                                   self.__x_axis_inverted,
                                   self.__y_axis_inverted)
         else:
@@ -58,9 +58,10 @@ class  MainWindow:
 
         if key_pressed in direction_conversion and self.__keyboard_input :
             direction = direction_conversion[key_pressed]
-            facade.move_immediate(direction,
-                                  self.__x_axis_inverted,
-                                  self.__y_axis_inverted)
+            direction = [x * self.__actuator_step for x in direction]
+            facade.move(direction,
+                        self.__x_axis_inverted,
+                        self.__y_axis_inverted)
 
     def __init__(self):
         filename = "GUI.glade"
@@ -77,7 +78,11 @@ class  MainWindow:
                                                   self.__toggle_keyboard_input,
             "on_main_window_key_press_event" :
                                           self.__keyboard_movement_instruction,
-            "on_edit_menu_clear_log_activate" : self.__clear_log
+            "on_edit_menu_clear_log_activate" : self.__clear_log,
+            "on_emma_mode_radio_toggled" : self.__switch_mode_EMMA,
+            "on_copter_mode_radio_toggled" : self.__switch_mode_copter,
+            "on_setup_menu_actuators_activate" :
+                                            self.__open_actuator_setup_window
         }
 
         self.__builder = gtk.Builder()
@@ -87,9 +92,9 @@ class  MainWindow:
 
         self.__keyboard_input = True
         self.__log = log.Log()
-        self.__mode = facade.ACTUATOR
         self.__x_axis_inverted = False
         self.__y_axis_inverted = False
+        self.__actuator_step = 1
 
         self.__log.set_buffer(self.__builder.get_object(
                 "vertical_log_scroll_window_text_view").get_property('buffer'))
@@ -139,6 +144,74 @@ class  MainWindow:
         # window to work, as you are unable to add a signal to the close button
         help_window.run()
         help_window.hide()
+
+    def __open_actuator_setup_window(self, menu_item):
+        """ Opens the actuator setup window
+
+        Keyword arguments:
+        menu_item -- object the action occured on
+
+        """
+        #set the combo box values
+        com_port_combo = self.__builder.get_object("com_port_combo")
+        available_com_ports = facade.get_available_com_ports()
+        com_port_liststore = self.__builder.get_object("com_port_liststore")
+        com_port_liststore.clear()
+
+        for com_port_info in available_com_ports:
+            com_port_combo.append_text(com_port_info[0])
+
+        com_port_combo.set_active(0)
+
+        #set the current actuator step value in the textbox
+        actuator_step_entry = self.__builder.get_object("actuator_step_entry")
+        actuator_step_entry.set_text(str(self.__actuator_step))
+
+        actuator_setup_window = self.__builder.get_object("actuator_setup_window")
+        # do not listen for close events in order for the close button on the
+        # window to work, as you are unable to add a signal to the close button
+        actuator_setup_window.run()
+        actuator_setup_window.hide()
+
+        #sets the com-port for the actuators
+        facade.set_com_port(com_port_combo.get_active_text())
+
+        #sets the actuator step
+        actuator_step = actuator_step_entry.get_text()
+
+        if actuator_step.isdigit():
+            self.__actuator_step = int(actuator_step)
+        else:
+            log.log_error("The magnitude of actuator step must be an integer,"\
+                          " '{0}' is not an integer.".format(magnitude))
+
+        #switches the actuator axis if the box was checked
+        switch_actuator_axis = self.__builder.get_object("switch_actuator_axis")
+
+        if switch_actuator_axis.get_active():
+            facade.switch_actuator_axis()
+            switch_actuator_axis.set_active(False)
+
+
+    def __switch_mode_EMMA(self, check_menu_item):
+        """ Checks to see if EMMA mode is being enabled
+
+        Keyword arguments:
+        check_menu_item -- object the action occured on
+
+        """
+        if check_menu_item.active:
+            facade.switch_to_EMMA()
+
+    def __switch_mode_copter(self, check_menu_item):
+        """ Checks to see if the copter mode is being enabled
+
+        Keyword arguments:
+        check_menu_item -- object the action occured on
+
+        """
+        if check_menu_item.active:
+            facade.switch_to_copter()
 
     def __toggle_keyboard_input(self, menu_item):
         """ Updates keyboard input variable
