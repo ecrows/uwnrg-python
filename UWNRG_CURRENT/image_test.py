@@ -2,7 +2,8 @@ import imaging.image_recognition as imaging
 import cv2 as cv2  
 import numpy as np
 
-vc = cv2.VideoCapture("MobilityRun1.wmv")
+#vc = cv2.VideoCapture("MobilityRun1.wmv")
+vc = cv2.VideoCapture(1)
 rval, frame = vc.read()
 
 irtest = imaging.ImageRecognition("eight")

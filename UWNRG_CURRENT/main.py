@@ -1,6 +1,10 @@
 import gtk
+import gobject
 import facade as facade
 import log as log
+import threading as threading
+
+
 
 class  MainWindow:
     """ main window for the application, has no public methods or variables"""
@@ -28,6 +32,21 @@ class  MainWindow:
             facade.move_immediate(int(magnitude), direction, self.__x_axis_inverted, self.__y_axis_inverted)
         else:
             log.log_error("The magnitude of a movement must be an integer, '{0}' is not an integer.".format(magnitude))
+
+    def __key_release(self, window, event):
+        """ Sends end movement instruction to facade
+
+        Keyword arguments:
+        window -- object the action occured on
+        event -- contains information about the key press event
+
+        """
+        key_pressed = event.keyval
+        combo_conversion = {97 : facade.LEFT, 100 : facade.RIGHT, 119 : facade.UP, 115 : facade.DOWN, 101 : facade.CLOCKWISE, 113 : facade.CCLOCKWISE}
+
+        if key_pressed in combo_conversion and self.__keyboard_input :
+            direction = combo_conversion[key_pressed]
+            facade.end_movement(direction, self.__x_axis_inverted, self.__y_axis_inverted)
 
     def __keyboard_movement_instruction(self, window, event):
         """ Sends movement instruction to facade
@@ -61,22 +80,27 @@ class  MainWindow:
             "on_setup_menu_camera_activate" : self.__open_img_window,
             "on_img_ok_close_clicked" : self.__save_image_settings,
             "on_tools_menu_stop_camera_feed_activate" : self.__stop_feed,
-            "on_tools_menu_start_camera_feed_activate" : self.__start_feed
+            "on_tools_menu_start_camera_feed_activate" : self.__start_feed,
+            "on_main_window_key_release_event" : self.__key_release
         }
 
         self.__builder = gtk.Builder()
         self.__builder.add_from_file(filename)
         self.__builder.connect_signals(handlers)
         self.__builder.get_object("main_window").show_all()
+        
+        self.__field = facade.init_field()
+        self.__feed = self.__builder.get_object("feed")
+        self.__pbuf = gtk.gdk.pixbuf_new_from_array(facade.get_frame_np(self.__field), gtk.gdk.COLORSPACE_RGB, 8)
+        self.__feed.set_from_pixbuf(self.__pbuf)
 
         self.__keyboard_input = True
         self.__log = log.Log()
         self.__mode = facade.ACTUATOR
         self.__x_axis_inverted = False
         self.__y_axis_inverted = False
-        self.__field = facade.init_field()
         self.__log.set_buffer(self.__builder.get_object("vertical_log_scroll_window_text_view").get_property('buffer'))
-
+        
     def __invert_x_axis(self, check_menu_item):
         """ Updates x inversion variable
 
@@ -146,11 +170,18 @@ class  MainWindow:
         """ Update camera settings upon pressing OK """
         facade.confirm_new_settings(med_width, ad_bsize, ad_const, can_low, can_high)
 
+    def __work(self):
+        while (self.__field.thread_running == True):
+            #ALLOCATE BUFFER ONCE OUTSIDE OF LOOP, THEN JUST DRAW ON IT.
+            self.__pbuf = gtk.gdk.pixbuf_new_from_array(facade.get_frame_np(self.__field), gtk.gdk.COLORSPACE_RGB, 8)
+
     def __start_feed(self, menu_item):
-        """ Start camera feed, currently in new window """
+        """ Start camera feed """
         if (self.__field.thread_running == False):
-            facade.start_feed(self.__field)
             self.__field.thread_running = True
+            t = threading.Thread(target=self.__work)
+            t.start()
+            #facade.start_feed(self.__field)
 
     def __stop_feed(self, menu_item):
         """ Terminate camera feed """
@@ -158,6 +189,23 @@ class  MainWindow:
             facade.stop_feed(self.__field)
             self.__field.thread_running = False
 
+"""class MainThread(threading.Thread):
+    def __init__(self, label):
+        super(MyThread, self).__init__()
+        self.label = label
+        self.quit = False
 
+    def update_label(self, counter):
+        self.label.set_text("Counter: %i" % counter)
+        return False
+
+    def run(self):
+        counter = 0
+        while not self.quit:
+            counter += 1
+            gobject.idle_add(self.update_label, counter)
+            time.sleep(0.1)
+"""
 app = MainWindow()
+
 gtk.main()

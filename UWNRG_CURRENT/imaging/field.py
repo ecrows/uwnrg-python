@@ -1,6 +1,7 @@
 import cv2 as cv2
 import numpy as np
 import math as math
+import threading as threading
 
 class Field:
     """
@@ -27,9 +28,10 @@ class Field:
     # debug variable chooses either sample video or camera feed
     # should evolve into a "Video Source" option
     __debug = 1 
-    __render = 1
+    __render = 0
     
     thread_running = False
+    lock =  threading.Lock()
 
     def __process_frame(self, frame):
         # 5 frame border to avoid getting frame edges detected
@@ -47,6 +49,23 @@ class Field:
 
         return edges
 
+    def __process_plain_frame(self, frame):
+        # 5 frame border to avoid getting frame edges detected
+        roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
+        return roi
+
+    def get_plain_frame(self):
+        if self.__vc.isOpened():
+            rval, frame = self.__vc.read()
+
+        if rval:
+            return self.__process_plain_frame(frame)
+        else:
+            return False
+
+        #TODO: Remove this debug statement
+        self.__vc = cv2.VideoCapture("MobilityRun2.wmv")
+
     def get_frame(self):
         if self.__vc.isOpened():
             rval, frame = self.__vc.read()
@@ -57,6 +76,7 @@ class Field:
             return False
 
     def start_camera_feed(self):
+        print "Camera feed started"
         if self.__vc.isOpened(): # try to get the first frame
             rval, frame = self.__vc.read()
         else:
@@ -72,7 +92,7 @@ class Field:
             if (rval==0):
                 break
 
-            frame = self.__process_frame(frame)
+            frame = self.__process_plain_frame(frame)
 
             # Simple hack for large resolution viewing.
             # Should become a setting somewhere
@@ -93,7 +113,12 @@ class Field:
         self.thread_running = False
 
     def stop_camera_feed(self):
+        """ Stop camera feed """
+        
+        print "Camera feed stopped"
+        self.lock.acquire()
         self.thread_running = True
+        self.lock.release()
 
     def __show_boundaries(self, image, leftline, rightline, botline, topline):
         """ Draw rectangular boundaries on image specified by 'image'.
