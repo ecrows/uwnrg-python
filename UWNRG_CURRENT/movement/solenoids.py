@@ -1,66 +1,48 @@
 import log as log
+import movement.controller as controller
+import time as time
+import httplib as httplib
 
-DEFAULT_MOVEMENT_MAGNITUDE = 1
-DOWN = "DOWN"
-LEFT = "LEFT"
-RIGHT = "RIGHT"
-UP = "UP"
+class Solenoids(controller.Controller):
 
-solenoid_number = {LEFT : "3", RIGHT : "4", UP : "1", DOWN : "2"}
-
-def __init__():
+    DEFAULT_MOVEMENT_MAGNITUDE = 1
+    DOWN = "DOWN"
+    LEFT = "LEFT"
+    RIGHT = "RIGHT"
+    UP = "UP"
+    BRAKE = "BRAKE"
     conn = httplib.HTTPConnection("10.0.0.32", 80)
+    solenoid_number = {LEFT : "3", RIGHT : "4", UP : "1", DOWN : "2"}
 
-def start_movement(direction, invert_x_axis, invert_y_axis):
-    """ Given input parameters, activates the specified solenoid
+    #def __init__(self):
 
-    Keyword Arguments:
-    direciton -- direction of movement
-    invert_x_axis -- boolean of whether to invert on the x-axis
-    invert_y_axis -- boolean of whether to invert on the y-axis
 
-    """
-    flip = {LEFT : RIGHT, RIGHT : LEFT, UP : DOWN, DOWN  :UP, CLOCKWISE : CCLOCKWISE, CCLOCKWISE : CLOCKWISE}
+    def move_immediate(self, direction, invert_x_axis, invert_y_axis):
+        """ Given input parameters, activates the specified solenoid
 
-    ################################################################
-    #DONT KNOW IF THIS MAKES STUFF EASIER TAYLOR, IF NOT, DELETE IT#
-    if (magnitude < 0):
-        direction = flip[direction]
-        magnitude *= -1
-    ################################################################
+        Keyword Arguments:
+        direciton -- direction of movement
+        invert_x_axis -- boolean of whether to invert on the x-axis
+        invert_y_axis -- boolean of whether to invert on the y-axis
 
-    if (direction == LEFT or direction == RIGHT or direction == CLOCKWISE or direction == CCLOCKWISE) and invert_x_axis:
-        direction = flip[direction]
+        """
+        flip = {self.LEFT : self.RIGHT, self.RIGHT : self.LEFT, self.UP : self.DOWN, 
+                self.DOWN  :self.UP} 
 
-    if (direction == UP or direction == DOWN or direction == CLOCKWISE or direction == CCLOCKWISE) and invert_y_axis:
-        direction = flip[direction]
+        if (direction == self.LEFT or direction == self.RIGHT) and invert_x_axis:
+            direction = flip[direction]
 
-    conn.request("ON", solenoid_number[direction])
-    response = conn.getresponse()
+        if (direction == self.UP or direction == self.DOWN) and invert_y_axis:
+            direction = flip[direction]
 
-def end_movement(direction, invert_x_axis, invert_y_axis):
-    """ Given input parameters, deactivates the specified solenoid
+        self.conn.request("OFF", "5")
+        response = self.conn.getresponse()
+        self.conn.request("ON", solenoid_number[direction])
+        response = self.conn.getresponse()
 
-    Keyword Arguments:
-    direciton -- direction of movement
-    invert_x_axis -- boolean of whether to invert on the x-axis
-    invert_y_axis -- boolean of whether to invert on the y-axis
+        time.sleep(0.01)
 
-    """
-    flip = {LEFT : RIGHT, RIGHT : LEFT, UP : DOWN, DOWN  :UP, CLOCKWISE : CCLOCKWISE, CCLOCKWISE : CLOCKWISE}
-
-    ################################################################
-    #DONT KNOW IF THIS MAKES STUFF EASIER TAYLOR, IF NOT, DELETE IT#
-    if (magnitude < 0):
-        direction = flip[direction]
-        magnitude *= -1
-    ################################################################
-
-    if (direction == LEFT or direction == RIGHT or direction == CLOCKWISE or direction == CCLOCKWISE) and invert_x_axis:
-        direction = flip[direction]
-
-    if (direction == UP or direction == DOWN or direction == CLOCKWISE or direction == CCLOCKWISE) and invert_y_axis:
-        direction = flip[direction]
-
-    conn.request("OFF", solenoid_number[direction])
-    response = conn.getresponse()
+        self.conn.request("OFF", solenoid_number[direction])
+        response = self.conn.getresponse()
+        self.conn.request("ON", "5")
+        response = self.conn.getresponse()
