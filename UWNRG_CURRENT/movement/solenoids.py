@@ -2,6 +2,8 @@ import log as log
 import movement.controller as controller
 import time as time
 import httplib as httplib
+import errno
+from socket import error as socket_error
 
 class Solenoids(controller.Controller):
 
@@ -12,10 +14,7 @@ class Solenoids(controller.Controller):
     UP = "UP"
     BRAKE = "BRAKE"
     conn = httplib.HTTPConnection("10.0.0.32", 80)
-    solenoid_number = {LEFT : "3", RIGHT : "4", UP : "1", DOWN : "2"}
-
-    #def __init__(self):
-
+    solenoid_number = {LEFT : "3", RIGHT : "4", UP : "1", DOWN : "2", BRAKE : "5"}
 
     def move_immediate(self, direction, invert_x_axis, invert_y_axis):
         """ Given input parameters, activates the specified solenoid
@@ -35,14 +34,17 @@ class Solenoids(controller.Controller):
         if (direction == self.UP or direction == self.DOWN) and invert_y_axis:
             direction = flip[direction]
 
-        self.conn.request("OFF", "5")
-        response = self.conn.getresponse()
-        self.conn.request("ON", solenoid_number[direction])
-        response = self.conn.getresponse()
+        try:
+            self.conn.request("OFF", self.solenoid_number[self.BRAKE])
+            response = self.conn.getresponse()
+            self.conn.request("ON", self.solenoid_number[direction])
+            response = self.conn.getresponse()
 
-        time.sleep(0.01)
+            time.sleep(0.01)
 
-        self.conn.request("OFF", solenoid_number[direction])
-        response = self.conn.getresponse()
-        self.conn.request("ON", "5")
-        response = self.conn.getresponse()
+            self.conn.request("OFF", self.solenoid_number[direction])
+            response = self.conn.getresponse()
+            self.conn.request("ON", self.solenoid_number[self.BRAKE])
+            response = self.conn.getresponse()
+        except socket_error as serr:
+            print("Failed communication with HTTP server.")
