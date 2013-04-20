@@ -24,9 +24,13 @@ def move_to(vector, inverted_x_axis, inverted_y_axis):
     """
     _movement_controller.move_to(vector, inverted_x_axis, inverted_y_axis)
 
-def switch_to_EMMA():
-    """ Switches the controller to EMMA mode """
-    _movement_controller.switch_to_EMMA()
+def switch_to_EMMA_actuator():
+    """ Switches the controller to EMMA actuator mode """
+    _movement_controller.switch_to_EMMA_actuator()
+
+def switch_to_EMMA_solenoid():
+    """ Switches the controller to EMMA solenoid mode """
+    _movement_controller.switch_to_EMMA_solenoid()
 
 def switch_to_copter():
     """ Switches the controller to copter mode """
@@ -43,3 +47,48 @@ def set_com_port(com_port):
 def switch_actuator_axis():
     """ Toggles which device is responsible for x and y axis movement """
     _movement_controller.switch_actuator_axis()
+
+def init_field():
+    return field.Field()
+
+def configure_field(med_width, ad_bsize, ad_const, can_low, can_high):
+    """ Update value of filters and boundaries 
+    
+    Keyword Arguments:
+    med_width -- Median filter width
+    ad_bsize -- Adaptive filter block size
+    ad_const -- Adaptive filter constant offset
+    can_low -- Canny filter lower threshold
+    can_high -- Canny filter upper threshold
+    
+    """
+    field.medfilt_width = med_width
+    field.adaptive_blocksize = ab_bsize
+    field.adaptive_c = ad_const
+    field.canny_thresh1 = can_low
+    field.canny_thresh2= can_high
+
+# Feed start and stop commands stubbed for now as 
+# live streaming is on hold for more critical features.
+
+def __work(main_field):
+    """ Initialized camera feed 
+    Exists due to an oddity in python threading
+    Corresponding facade handler removed for the moment"""
+    # main_field.start_camera_feed()
+    pass
+
+def start_feed(main_field):
+    """ Start new thread for camera window """
+    #p = Process(target=__work, args=(main_field,))
+    #p.start()
+    #t = threading.Thread(target=__work, args=(main_field,))
+    #t.start()
+
+def stop_feed(main_field):
+    """ Signal camera thread to stop """
+    #main_field.stop_camera_feed()
+
+def get_frame_np(main_field):
+    """ Get a numpy array frame to display in the main window """
+    #return np.asarray(main_field.get_plain_frame())

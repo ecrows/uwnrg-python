@@ -1,13 +1,126 @@
-class FieldType:
-    """"""
+import cv2 as cv2
+import numpy as np
+import math as math
+import threading as threading
+
+class Field:
+    """
+    Contains methods for each field.
+    
+    """
+    # Constant representing scale of output array
+    GRID_H = 32
+    GRID_W = 32
+
     # Region of interest that we're limiting processing to
     # This saves time and lets us avoid any borders
-    roi_top = -1
-    roi_bot = -1
-    roi_left = -1
-    roi_right = -1
+    # TODO: Save these settings on load.
+    roi_top = 60
+    roi_bot = 475
+    roi_left = 20
+    roi_right = 620
+    medfilt_width = 7 # must be odd, should snap
+    adaptive_blocksize = 11
+    adaptive_c = 0
+    canny_thresh1 = 80
+    canny_thresh2 = 120
 
-    def _show_boundaries(self, image, leftline, rightline, botline, topline):
+    # debug variable chooses either sample video or camera feed
+    # should evolve into a "Video Source" option
+    __debug = 1 
+    __render = 0
+    
+    thread_running = False
+    lock =  threading.Lock()
+
+    def __process_frame(self, frame):
+        # 5 frame border to avoid getting frame edges detected
+        roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
+        gray=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
+        
+        if (self.medfilt_width%2 == 0):
+            self.medfilt_width+=1
+
+        medfilt=cv2.medianBlur(gray, self.medfilt_width)
+        
+        tr=cv2.adaptiveThreshold(medfilt,255,0,1,self.adaptive_blocksize,self.adaptive_c)
+
+        edges = cv2.Canny(medfilt, self.canny_thresh1, self.canny_thresh2)
+
+        return edges
+
+    def __process_plain_frame(self, frame):
+        # 5 frame border to avoid getting frame edges detected
+        roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
+        return roi
+
+    def get_plain_frame(self):
+        if self.__vc.isOpened():
+            rval, frame = self.__vc.read()
+
+        if rval:
+            return self.__process_plain_frame(frame)
+        else:
+            return False
+
+        #TODO: Remove this debug statement
+        self.__vc = cv2.VideoCapture("MobilityRun2.wmv")
+
+    def get_frame(self):
+        if self.__vc.isOpened():
+            rval, frame = self.__vc.read()
+
+        if rval:
+            return self.__process_frame(frame)
+        else:
+            return False
+
+    def start_camera_feed(self):
+        print "Camera feed started"
+        if self.__vc.isOpened(): # try to get the first frame
+            rval, frame = self.__vc.read()
+        else:
+            rval = False
+
+        if (self.__render == 1):
+            cv2.namedWindow("Camera Feed")
+            bigimage = (())
+
+        while rval:
+            rval, frame = self.__vc.read()
+    
+            if (rval==0):
+                break
+
+            frame = self.__process_plain_frame(frame)
+
+            # Simple hack for large resolution viewing.
+            # Should become a setting somewhere
+            # Ideally just a drag to resize window
+        
+            bigimage = cv2.resize(frame, (840, 630))
+
+            if (self.__render == 1):
+                cv2.imshow("Camera Feed", bigimage)
+
+            key = cv2.waitKey(5)
+            if key == 27: # exit on ESC
+                break
+
+            if self.thread_running == True:
+                break
+
+        self.thread_running = False
+
+    def stop_camera_feed(self):
+        """ Stop camera feed """
+        
+        print "Camera feed stopped"
+        self.lock.acquire()
+        self.thread_running = True
+        self.lock.release()
+
+    def __show_boundaries(self, image, leftline, rightline, botline, topline):
         """ Draw rectangular boundaries on image specified by 'image'.
         Currently hardcoded for a rectangular field.
 
@@ -34,6 +147,12 @@ class FieldType:
         """
         self.GRID_H = height
         self.GRID_W = width
+
+        if self.__debug:
+            self.__vc = cv2.VideoCapture("MobilityRun1.wmv")
+        else:
+            self.__vc = cv2.VideoCapture(1)
+
 
     def find_field(self, frame):
         """Returns array representation of rectangular field. Should be called
@@ -90,7 +209,7 @@ class FieldType:
         """
         raise NotImplementedError
 
-    def _find_rect_boundary(self, edges, type):
+    def __find_rect_boundary(self, edges, type):
         """Find the edges of a rectangular field and return line index
 
         Should only be called *once* at the beginning of the challenge
@@ -174,4 +293,3 @@ class FieldType:
             return -1
 
         return linedex
-

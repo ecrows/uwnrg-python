@@ -40,17 +40,6 @@ Garry Ng</property>
       </object>
     </child>
   </object>
-  <object class="GtkListStore" id="com_port_liststore">
-    <columns>
-      <!-- column-name com-port -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">problem with clearing liststore if you can see this</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkDialog" id="actuator_setup_window">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -186,6 +175,17 @@ com-port:</property>
       <action-widget response="0">close_help_button1</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkListStore" id="com_port_liststore">
+    <columns>
+      <!-- column-name com-port -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">problem with clearing liststore if you can see this</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkDialog" id="help_window">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -297,15 +297,27 @@ until someone writes the help documents.</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkRadioMenuItem" id="emma_mode_radio">
+                      <object class="GtkRadioMenuItem" id="emma_mode_actuator_radio">
                         <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">EMMA Mode</property>
+                        <property name="label" translatable="yes">EMMA Actuator Mode</property>
                         <property name="use_underline">True</property>
                         <property name="active">True</property>
                         <property name="draw_as_radio">True</property>
-                        <signal name="toggled" handler="on_emma_mode_radio_toggled" swapped="no"/>
+                        <signal name="toggled" handler="on_emma_mode_actuator_radio_toggled" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkRadioMenuItem" id="emma_mode_solenoid_radio">
+                        <property name="use_action_appearance">False</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">EMMA Solenoid Mode</property>
+                        <property name="use_underline">True</property>
+                        <property name="draw_as_radio">True</property>
+                        <property name="group">emma_mode_actuator_radio</property>
+                        <signal name="toggled" handler="on_emma_mode_solenoid_radio_toggled" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -316,7 +328,7 @@ until someone writes the help documents.</property>
                         <property name="label" translatable="yes">Copter Mode</property>
                         <property name="use_underline">True</property>
                         <property name="draw_as_radio">True</property>
-                        <property name="group">emma_mode_radio</property>
+                        <property name="group">emma_mode_actuator_radio</property>
                         <signal name="toggled" handler="on_copter_mode_radio_toggled" swapped="no"/>
                       </object>
                     </child>
@@ -714,6 +726,62 @@ until someone writes the help documents.</property>
             <property name="position">1</property>
           </packing>
         </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkMenu" id="setup_menu_dropdown1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkRadioMenuItem" id="emma_mode_radio1">
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="active">True</property>
+        <property name="draw_as_radio">True</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkRadioMenuItem" id="copter_mode_radio1">
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="draw_as_radio">True</property>
+        <property name="group">emma_mode_actuator_radio</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparatorMenuItem" id="separatormenuitem2">
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="setup_menu_camera1">
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="setup_menu_actuators1">
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparatorMenuItem" id="setup_menu_separator1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="setup_menu_exit1">
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
       </object>
     </child>
   </object>

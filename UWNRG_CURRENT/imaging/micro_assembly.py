@@ -1,6 +1,6 @@
 import field as field
 
-class MicroAssembly(field.FieldType):
+class MicroAssembly(field.Field):
     def find_field(self, frame):
         """Returns array representation of rectangular field. Should be called
         *once* at the beginning of the challenge. Works only on an aligned
