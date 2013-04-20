@@ -25,7 +25,7 @@ class Log:
 
     def get_buffer(self):
         """ Gets the buffer for the Log class """
-        return self.__shared_state['logBuffer']
+        return self.__shared_state.get('logBuffer')
 
     def clear_log(self):
         """ Clears the buffer of the Log class """
@@ -40,9 +40,11 @@ def log_error(text):
 
     """
     log = Log()
-    i = log.get_buffer().get_end_iter()
-    log.get_buffer().insert(i, "ERROR: ")
-    log_text(text)
+
+    if log.get_buffer():
+        i = log.get_buffer().get_end_iter()
+        log.get_buffer().insert(i, "ERROR: ")
+        log_text(text)
 
 def log_info(text):
     """ Formats the input and sends it to the Log's buffer
@@ -52,9 +54,11 @@ def log_info(text):
 
     """
     log = Log()
-    i = log.get_buffer().get_end_iter()
-    log.get_buffer().insert(i, "INFO: ")
-    log_text(text)
+
+    if log.get_buffer():
+        i = log.get_buffer().get_end_iter()
+        log.get_buffer().insert(i, "INFO: ")
+        log_text(text)
 
 def log_text(text):
     """ Formats the input and sends it to the Log's buffer
@@ -64,5 +68,7 @@ def log_text(text):
 
     """
     log = Log()
-    i = log.get_buffer().get_end_iter()
-    log.get_buffer().insert(i, text + '\n')
+
+    if log.get_buffer():
+        i = log.get_buffer().get_end_iter()
+        log.get_buffer().insert(i, text + '\n')
