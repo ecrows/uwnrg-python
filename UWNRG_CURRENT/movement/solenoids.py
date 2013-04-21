@@ -22,8 +22,13 @@ class Solenoids():
         increment -- whether the speed is increasing (1) or decreasing (-1)
 
         """
+        if increment==1:
+            log.log_info("Incrementing PWM voltage.")
+        else:
+            log.log_info("Decrementing PWM voltage.")
+
         try:
-            self._conn.request("", self._DECREMENT if increment == -1 else self._INCREMENT)
+            self._conn.request("PWM", self._DECREMENT if increment == -1 else self._INCREMENT)
             response = self._conn.getresponse()
         except socket_error as serr:
             log.log_error("Failed communication with HTTP server.")
