@@ -48,19 +48,28 @@ def switch_actuator_axis():
     """ Toggles which device is responsible for x and y axis movement """
     _movement_controller.switch_actuator_axis()
 
+def change_speed(increment):
+    """  Changes the speed of movement for the controller
+
+    Keyword Arguments:
+    increment -- whether the speed is increasing (1) or decreasing (-1)
+
+    """
+    _movement_controller.speed_change(increment)
+
 def init_field():
     return field.Field()
 
 def configure_field(med_width, ad_bsize, ad_const, can_low, can_high):
     """ Update value of filters and boundaries 
-    
+
     Keyword Arguments:
     med_width -- Median filter width
     ad_bsize -- Adaptive filter block size
     ad_const -- Adaptive filter constant offset
     can_low -- Canny filter lower threshold
     can_high -- Canny filter upper threshold
-    
+
     """
     field.medfilt_width = med_width
     field.adaptive_blocksize = ab_bsize

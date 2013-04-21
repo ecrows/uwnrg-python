@@ -54,14 +54,19 @@ class  MainWindow:
                                 115: (0, -1, 0),
                                 101: (0, 0, 1),
                                 113: (0, 0, -1)}
+
+        speed_change = {45 : -1, 43 : 1}
+
         key_pressed = event.keyval
 
-        if key_pressed in direction_conversion and self.__keyboard_input :
+        if key_pressed in direction_conversion and self.__keyboard_input:
             direction = direction_conversion[key_pressed]
             direction = [x * self.__actuator_step for x in direction]
             facade.move(direction,
                         self.__x_axis_inverted,
                         self.__y_axis_inverted)
+        elif key_pressed in speed_change and self.__keyboard_input:
+            facade.change_speed(speed_change[key_pressed])
 
     def __init__(self):
         filename = "GUI.glade"
