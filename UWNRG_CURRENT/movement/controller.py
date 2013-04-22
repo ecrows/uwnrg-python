@@ -41,6 +41,19 @@ class Controller():
         if not self.__solenoids:
             self.__solenoids = solenoids.Solenoids()
 
+    def speed_change(self, increment):
+        """  Changes the speed of movement for the controller
+
+        Keyword Arguments:
+        increment -- whether the speed is increasing (1) or decreasing (-1)
+
+        """
+        if self.__control_schema == _EMMA_SOLENOIDS:
+            if self.__solenoids:
+                self.__solenoids.pwm_change(increment)
+            else:
+                log.log_error("Solenoids have not been initialized")
+
     def move(self, vector, inverted_x_axis, inverted_y_axis):
         """ Sends the movement instruction to the appropriate control system
 
