@@ -1,9 +1,6 @@
-import gtk
-import gobject
+import gtk as gtk
 import facade as facade
 import log as log
-import threading as threading
-
 
 class  MainWindow:
     """ main window for the application, has no public methods or variables"""
@@ -36,7 +33,7 @@ class  MainWindow:
 
         if magnitude.isdigit():
             magnitude = int(magnitude)
-            facade.move_immediate(tuple(magnitude * x for x in direction),
+            facade.move(tuple(magnitude * x for x in direction),
                                   self.__x_axis_inverted,
                                   self.__y_axis_inverted)
         else:
@@ -57,50 +54,60 @@ class  MainWindow:
                                 115: (0, -1, 0),
                                 101: (0, 0, 1),
                                 113: (0, 0, -1)}
+
+        speed_change = {45 : -1, 43 : 1}
+
         key_pressed = event.keyval
 
-        if key_pressed in direction_conversion and self.__keyboard_input :
+        if key_pressed in direction_conversion and self.__keyboard_input:
             direction = direction_conversion[key_pressed]
-            facade.move_immediate(direction,
-                                  self.__x_axis_inverted,
-                                  self.__y_axis_inverted)
+            direction = [x * self.__actuator_step for x in direction]
+            facade.move(direction,
+                        self.__x_axis_inverted,
+                        self.__y_axis_inverted)
+        elif key_pressed in speed_change and self.__keyboard_input:
+            facade.change_speed(speed_change[key_pressed])
 
     def __init__(self):
         filename = "GUI.glade"
         handlers = {
             "on_setup_menu_exit_activate" : gtk.main_quit,
             "on_main_window_destroy" : gtk.main_quit,
-            "on_manual_control_enter_button_clicked" : self.__enter_movement_instruction,
+            "on_manual_control_enter_button_clicked" :
+                                             self.__enter_movement_instruction,
             "on_edit_menu_invert_x_axis_toggled" : self.__invert_x_axis,
             "on_edit_menu_invert_y_axis_toggled" : self.__invert_y_axis,
             "on_help_menu_about_activate" : self.__open_about_window,
             "on_help_menu_help_activate" : self.__open_help_window,
-            "on_tools_menu_manual_keyboard_input_toggled" : self.__toggle_keyboard_input,
+            "on_tools_menu_manual_keyboard_input_toggled" :
+                                                  self.__toggle_keyboard_input,
+            "on_main_window_key_press_event" :
+                                          self.__keyboard_movement_instruction,
             "on_edit_menu_clear_log_activate" : self.__clear_log,
+            "on_emma_mode_actuator_radio_toggled" : self.__switch_mode_EMMA_actuator,
+            "on_emma_mode_solenoid_radio_toggled" : self.__switch_mode_EMMA_solenoid,
+            "on_copter_mode_radio_toggled" : self.__switch_mode_copter,
+            "on_setup_menu_actuators_activate" :
+                                            self.__open_actuator_setup_window,
             "on_setup_menu_camera_activate" : self.__open_img_window,
             "on_img_ok_close_clicked" : self.__save_image_settings,
             "on_tools_menu_stop_camera_feed_activate" : self.__stop_feed,
-            "on_tools_menu_start_camera_feed_activate" : self.__start_feed,
-            "on_main_window_key_press_event" : self.__keyboard_movement_instruction,
+            "on_tools_menu_start_camera_feed_activate" : self.__start_feed
         }
 
         self.__builder = gtk.Builder()
         self.__builder.add_from_file(filename)
         self.__builder.connect_signals(handlers)
         self.__builder.get_object("main_window").show_all()
-        
-        self.__field = facade.init_field()
-        self.__feed = self.__builder.get_object("feed")
-        #self.__pbuf = gtk.gdk.pixbuf_new_from_array(facade.get_frame_np(self.__field), gtk.gdk.COLORSPACE_RGB, 8)
-        #self.__feed.set_from_pixbuf(self.__pbuf)
 
         self.__keyboard_input = True
         self.__log = log.Log()
-        self.__mode = facade.ACTUATOR
         self.__x_axis_inverted = False
         self.__y_axis_inverted = False
+        self.__actuator_step = 1
+
         self.__log.set_buffer(self.__builder.get_object(
-            "vertical_log_scroll_window_text_view").get_property('buffer'))
+                "vertical_log_scroll_window_text_view").get_property('buffer'))
 
     def __invert_x_axis(self, check_menu_item):
         """ Updates x inversion variable
@@ -148,6 +155,83 @@ class  MainWindow:
         help_window.run()
         help_window.hide()
 
+    def __open_actuator_setup_window(self, menu_item):
+        """ Opens the actuator setup window
+
+        Keyword arguments:
+        menu_item -- object the action occured on
+
+        """
+        #set the combo box values
+        com_port_combo = self.__builder.get_object("com_port_combo")
+        available_com_ports = facade.get_available_com_ports()
+        com_port_liststore = self.__builder.get_object("com_port_liststore")
+        com_port_liststore.clear()
+
+        for com_port_info in available_com_ports:
+            com_port_combo.append_text(com_port_info[0])
+
+        com_port_combo.set_active(0)
+
+        #set the current actuator step value in the textbox
+        actuator_step_entry = self.__builder.get_object("actuator_step_entry")
+        actuator_step_entry.set_text(str(self.__actuator_step))
+
+        actuator_setup_window = self.__builder.get_object("actuator_setup_window")
+        # do not listen for close events in order for the close button on the
+        # window to work, as you are unable to add a signal to the close button
+        actuator_setup_window.run()
+        actuator_setup_window.hide()
+
+        #sets the com-port for the actuators
+        facade.set_com_port(com_port_combo.get_active_text())
+
+        #sets the actuator step
+        actuator_step = actuator_step_entry.get_text()
+
+        if actuator_step.isdigit():
+            self.__actuator_step = int(actuator_step)
+        else:
+            log.log_error("The magnitude of actuator step must be an integer,"\
+                          " '{0}' is not an integer.".format(magnitude))
+
+        #switches the actuator axis if the box was checked
+        switch_actuator_axis = self.__builder.get_object("switch_actuator_axis")
+
+        if switch_actuator_axis.get_active():
+            facade.switch_actuator_axis()
+            switch_actuator_axis.set_active(False)
+
+    def __switch_mode_EMMA_solenoid(self, check_menu_item):
+        """ Checks to see if EMMA mode is being enabled
+
+        Keyword arguments:
+        check_menu_item -- object the action occured on
+
+        """
+        if check_menu_item.active:
+            facade.switch_to_EMMA_solenoid()
+
+    def __switch_mode_EMMA_actuator(self, check_menu_item):
+        """ Checks to see if EMMA mode is being enabled
+
+        Keyword arguments:
+        check_menu_item -- object the action occured on
+
+        """
+        if check_menu_item.active:
+            facade.switch_to_EMMA_actuator()
+
+    def __switch_mode_copter(self, check_menu_item):
+        """ Checks to see if the copter mode is being enabled
+
+        Keyword arguments:
+        check_menu_item -- object the action occured on
+
+        """
+        if check_menu_item.active:
+            facade.switch_to_copter()
+
     def __toggle_keyboard_input(self, menu_item):
         """ Updates keyboard input variable
 
@@ -156,16 +240,16 @@ class  MainWindow:
 
         """
         self.__keyboard_input ^= True;
-        
+
     def __open_img_window(self, menu_item):
         """ Opens the image settings window """
         img_window = self.__builder.get_object("img_window")
 
-        #do not listen for close events in order for the close button on the window to work, as you are unable to add a signal to the close button
         img_window.run()
         img_window.hide()
 
-        #TODO: Backup old image settings, so that if they press "Cancel" old image settings are restored
+        # TODO: Backup old image settings, so that if the user presses
+        # "Cancel" old image settings are restored
 
         # image window will display settings, camera feed will be displayed in separate window
         # if time permits, camera feed should be embedded directly into window
@@ -173,11 +257,6 @@ class  MainWindow:
     def __save_image_settings(self, menu_item):
         """ Update camera settings upon pressing OK """
         facade.confirm_new_settings(med_width, ad_bsize, ad_const, can_low, can_high)
-
-    def __work(self):
-        while (self.__field.thread_running == True):
-            #ALLOCATE BUFFER ONCE OUTSIDE OF LOOP, THEN JUST DRAW ON IT.
-            self.__pbuf = gtk.gdk.pixbuf_new_from_array(facade.get_frame_np(self.__field), gtk.gdk.COLORSPACE_RGB, 8)
 
     def __start_feed(self, menu_item):
         """ Start camera feed """
@@ -193,23 +272,5 @@ class  MainWindow:
             facade.stop_feed(self.__field)
             self.__field.thread_running = False
 
-"""class MainThread(threading.Thread):
-    def __init__(self, label):
-        super(MyThread, self).__init__()
-        self.label = label
-        self.quit = False
-
-    def update_label(self, counter):
-        self.label.set_text("Counter: %i" % counter)
-        return False
-
-    def run(self):
-        counter = 0
-        while not self.quit:
-            counter += 1
-            gobject.idle_add(self.update_label, counter)
-            time.sleep(0.1)
-"""
 app = MainWindow()
-
 gtk.main()

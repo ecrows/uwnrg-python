@@ -1,22 +1,39 @@
 import log as log
-import movement.controller as controller
 import time as time
 import httplib as httplib
 import errno
 from socket import error as socket_error
 
-class Solenoids(controller.Controller):
+class Solenoids():
+    _INCREMENT = "INCREMENT"
+    _DECREMENT = "DECREMENT"
+    _DOWN = "DOWN"
+    _LEFT = "LEFT"
+    _RIGHT = "RIGHT"
+    _UP = "UP"
+    _BRAKE = "BRAKE"
+    _conn = httplib.HTTPConnection("10.0.0.32", 80)
+    _solenoid_number = {_LEFT : "3", _RIGHT : "4", _UP : "1", _DOWN : "2", _BRAKE : "5", _INCREMENT : "6", _DECREMENT : "7"}
 
-    DEFAULT_MOVEMENT_MAGNITUDE = 1
-    DOWN = "DOWN"
-    LEFT = "LEFT"
-    RIGHT = "RIGHT"
-    UP = "UP"
-    BRAKE = "BRAKE"
-    conn = httplib.HTTPConnection("10.0.0.32", 80)
-    solenoid_number = {LEFT : "3", RIGHT : "4", UP : "1", DOWN : "2", BRAKE : "5"}
+    def pwm_change(self, increment):
+        """ Adjusts the PWM for the solenoids
 
-    def move_immediate(self, direction, invert_x_axis, invert_y_axis):
+        Keyword Arguments:
+        increment -- whether the speed is increasing (1) or decreasing (-1)
+
+        """
+        if increment==1:
+            log.log_info("Incrementing PWM voltage.")
+        else:
+            log.log_info("Decrementing PWM voltage.")
+
+        try:
+            self._conn.request("PWM", self._DECREMENT if increment == -1 else self._INCREMENT)
+            response = self._conn.getresponse()
+        except socket_error as serr:
+            log.log_error("Failed communication with HTTP server.")
+
+    def move(self, vector, invert_x_axis, invert_y_axis):
         """ Given input parameters, activates the specified solenoid
 
         Keyword Arguments:
@@ -25,26 +42,36 @@ class Solenoids(controller.Controller):
         invert_y_axis -- boolean of whether to invert on the y-axis
 
         """
-        flip = {self.LEFT : self.RIGHT, self.RIGHT : self.LEFT, self.UP : self.DOWN, 
-                self.DOWN  :self.UP} 
+        direction = ""
 
-        if (direction == self.LEFT or direction == self.RIGHT) and invert_x_axis:
-            direction = flip[direction]
+        if invert_x_axis:
+            vector[0] *= -1
 
-        if (direction == self.UP or direction == self.DOWN) and invert_y_axis:
-            direction = flip[direction]
+        if invert_y_axis:
+            vector[1] *= -1
+
+        if (vector[0] != 0):
+            if (vector[0] > 0):
+                direction = self._RIGHT
+            else:
+                direction = self._LEFT
+        elif (vector[1] != 0):
+            if (vector[1] > 0):
+                direction = self._UP
+            else:
+                direction = self._DOWN
 
         try:
-            self.conn.request("OFF", self.solenoid_number[self.BRAKE])
-            response = self.conn.getresponse()
-            self.conn.request("ON", self.solenoid_number[direction])
-            response = self.conn.getresponse()
+            self._conn.request("OFF", self._solenoid_number[self._BRAKE])
+            response = self._conn.getresponse()
+            self._conn.request("ON", self._solenoid_number[direction])
+            response = self._conn.getresponse()
 
             time.sleep(0.01)
 
-            self.conn.request("OFF", self.solenoid_number[direction])
-            response = self.conn.getresponse()
-            self.conn.request("ON", self.solenoid_number[self.BRAKE])
-            response = self.conn.getresponse()
+            self._conn.request("OFF", self._solenoid_number[direction])
+            response = self._conn.getresponse()
+            self._conn.request("ON", self._solenoid_number[self._BRAKE])
+            response = self._conn.getresponse()
         except socket_error as serr:
-            print("Failed communication with HTTP server.")
+            log.log_error("Failed communication with HTTP server.")

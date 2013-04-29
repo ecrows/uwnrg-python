@@ -1,40 +1,75 @@
-import numpy as np
-import movement.actuators as actuators
-import movement.solenoids as solenoids
-import imaging.field as field
-import log as log
-import threading as threading
+import movement.controller as controller
 
-SOLENOID = "SOLENOID"
-ACTUATOR = "ACTUATOR"
-movementController = solenoids.Solenoids()
+_movement_controller = controller.Controller()
 
-#executes a single movement
-def move_immediate(vector, inverted_x_axis, inverted_y_axis):
+def move(vector, inverted_x_axis, inverted_y_axis):
     """ Sends the movement instruction to the appropriate control system
 
     Keyword Arguments:
     vector -- movement vector
     invert_x_axis -- boolean of whether to invert on the x-axis
     invert_y_axis -- boolean of whether to invert on the y-axis
-    mode -- control system to use to execute the command
 
     """
-    movementController.move_immediate(vector, inverted_x_axis, inverted_y_axis)
+    _movement_controller.move(vector, inverted_x_axis, inverted_y_axis)
+
+def move_to(vector, inverted_x_axis, inverted_y_axis):
+    """ Sends the movement instruction to the appropriate control system
+
+    Keyword Arguments:
+    vector -- position vector
+    invert_x_axis -- boolean of whether to invert on the x-axis
+    invert_y_axis -- boolean of whether to invert on the y-axis
+
+    """
+    _movement_controller.move_to(vector, inverted_x_axis, inverted_y_axis)
+
+def switch_to_EMMA_actuator():
+    """ Switches the controller to EMMA actuator mode """
+    _movement_controller.switch_to_EMMA_actuator()
+
+def switch_to_EMMA_solenoid():
+    """ Switches the controller to EMMA solenoid mode """
+    _movement_controller.switch_to_EMMA_solenoid()
+
+def switch_to_copter():
+    """ Switches the controller to copter mode """
+    _movement_controller.switch_to_copter()
+
+def get_available_com_ports():
+    """ Returns a list of available com-ports """
+    return _movement_controller.get_available_com_ports()
+
+def set_com_port(com_port):
+    """ Sets the com-port to use for actuator communication """
+    _movement_controller.initialize_actuators(com_port)
+
+def switch_actuator_axis():
+    """ Toggles which device is responsible for x and y axis movement """
+    _movement_controller.switch_actuator_axis()
+
+def change_speed(increment):
+    """  Changes the speed of movement for the controller
+
+    Keyword Arguments:
+    increment -- whether the speed is increasing (1) or decreasing (-1)
+
+    """
+    _movement_controller.speed_change(increment)
 
 def init_field():
     return field.Field()
 
 def configure_field(med_width, ad_bsize, ad_const, can_low, can_high):
     """ Update value of filters and boundaries 
-    
+
     Keyword Arguments:
     med_width -- Median filter width
     ad_bsize -- Adaptive filter block size
     ad_const -- Adaptive filter constant offset
     can_low -- Canny filter lower threshold
     can_high -- Canny filter upper threshold
-    
+
     """
     field.medfilt_width = med_width
     field.adaptive_blocksize = ab_bsize
@@ -46,8 +81,11 @@ def configure_field(med_width, ad_bsize, ad_const, can_low, can_high):
 # live streaming is on hold for more critical features.
 
 def __work(main_field):
-    """ Exists due to an oddity in python threading """
+    """ Initialized camera feed 
+    Exists due to an oddity in python threading
+    Corresponding facade handler removed for the moment"""
     # main_field.start_camera_feed()
+    pass
 
 def start_feed(main_field):
     """ Start new thread for camera window """
