@@ -1,3 +1,4 @@
+import log as log
 import movement.controller as controller
 
 _movement_controller = controller.Controller()

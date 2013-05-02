@@ -7,13 +7,26 @@ from socket import error as socket_error
 class Solenoids():
     _INCREMENT = "INCREMENT"
     _DECREMENT = "DECREMENT"
+    _GETCURRENT = "GETCURRENT"
     _DOWN = "DOWN"
     _LEFT = "LEFT"
     _RIGHT = "RIGHT"
     _UP = "UP"
     _BRAKE = "BRAKE"
     _conn = httplib.HTTPConnection("10.0.0.32", 80)
-    _solenoid_number = {_LEFT : "3", _RIGHT : "4", _UP : "1", _DOWN : "2", _BRAKE : "5", _INCREMENT : "6", _DECREMENT : "7"}
+    _solenoid_number = {_LEFT : "3", _RIGHT : "4", _UP : "1", _DOWN : "2", _BRAKE : "5"}
+
+    def get_current(self):
+        """ Gets the current using ADC0
+
+        """
+        try:
+            self._conn.request("ADC", self._GETCURRENT)
+            response = self._conn.getresponse()
+            log.log_info(response.read())
+            return response.read()
+        except socket_error as serr:
+            log.log_error("Failed communication with HTTP server.")
 
     def pwm_change(self, increment):
         """ Adjusts the PWM for the solenoids
@@ -30,6 +43,7 @@ class Solenoids():
         try:
             self._conn.request("PWM", self._DECREMENT if increment == -1 else self._INCREMENT)
             response = self._conn.getresponse()
+            log.log_info(response.read())
         except socket_error as serr:
             log.log_error("Failed communication with HTTP server.")
 
@@ -73,5 +87,6 @@ class Solenoids():
             response = self._conn.getresponse()
             self._conn.request("ON", self._solenoid_number[self._BRAKE])
             response = self._conn.getresponse()
+            log.log_info(response.read())
         except socket_error as serr:
             log.log_error("Failed communication with HTTP server.")

@@ -84,6 +84,7 @@ class Controller():
                 return
 
             if self.__solenoids:
+                print self.__solenoids.get_current()
                 self.__solenoids.move(vector[:2],
                                       inverted_x_axis,
                                       inverted_y_axis)
