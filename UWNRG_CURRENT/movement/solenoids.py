@@ -23,8 +23,8 @@ class Solenoids():
         try:
             self._conn.request("ADC", self._GETCURRENT)
             response = self._conn.getresponse()
-            log.log_info(response.read())
-            return response.read()
+            #log.log_info(response.read())
+            #return response.read()
         except socket_error as serr:
             log.log_error("Failed communication with HTTP server.")
 
@@ -43,7 +43,7 @@ class Solenoids():
         try:
             self._conn.request("PWM", self._DECREMENT if increment == -1 else self._INCREMENT)
             response = self._conn.getresponse()
-            log.log_info(response.read())
+            #log.log_info(response.read())
         except socket_error as serr:
             log.log_error("Failed communication with HTTP server.")
 
@@ -81,12 +81,13 @@ class Solenoids():
             self._conn.request("ON", self._solenoid_number[direction])
             response = self._conn.getresponse()
 
-            time.sleep(0.01)
+            #time.sleep(0.01)
+            time.sleep(1)
 
             self._conn.request("OFF", self._solenoid_number[direction])
             response = self._conn.getresponse()
             self._conn.request("ON", self._solenoid_number[self._BRAKE])
             response = self._conn.getresponse()
-            log.log_info(response.read())
+            #log.log_info(response.read())
         except socket_error as serr:
             log.log_error("Failed communication with HTTP server.")

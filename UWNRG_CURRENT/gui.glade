@@ -40,6 +40,17 @@ Garry Ng</property>
       </object>
     </child>
   </object>
+  <object class="GtkListStore" id="com_port_liststore">
+    <columns>
+      <!-- column-name com-port -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">problem with clearing liststore if you can see this</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkDialog" id="actuator_setup_window">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -174,17 +185,6 @@ com-port:</property>
     <action-widgets>
       <action-widget response="0">close_help_button1</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkListStore" id="com_port_liststore">
-    <columns>
-      <!-- column-name com-port -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">problem with clearing liststore if you can see this</col>
-      </row>
-    </data>
   </object>
   <object class="GtkDialog" id="help_window">
     <property name="can_focus">False</property>
@@ -455,6 +455,23 @@ until someone writes the help documents.</property>
                   <object class="GtkMenu" id="tools_menu_dropdown">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkMenuItem" id="Figure Eight">
+                        <property name="use_action_appearance">False</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">figure_eight</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_Figure Eight_activate" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkSeparatorMenuItem" id="separatormenuitem3">
+                        <property name="use_action_appearance">False</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                      </object>
+                    </child>
                     <child>
                       <object class="GtkMenuItem" id="tools_menu_start_camera_feed">
                         <property name="use_action_appearance">False</property>

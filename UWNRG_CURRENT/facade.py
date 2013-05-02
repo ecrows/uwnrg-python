@@ -14,6 +14,29 @@ def move(vector, inverted_x_axis, inverted_y_axis):
     """
     _movement_controller.move(vector, inverted_x_axis, inverted_y_axis)
 
+def facade():
+    movements = [(0, -800, 0),
+                 (800, 0, 0),
+                 (0, -800, 0),
+                 (-800, 0, 0),
+                 (0, 800, 0),
+                 (800, 0, 0),
+                 (0, 800, 0),
+                 (-800, 0, 0)]
+    """movements = [(-800, 0, 0),
+                 (0, 800, 0),
+                 (-800, 0, 0),
+                 (0, -800, 0),
+                 (800, 0, 0),
+                 (0, 800, 0),
+                 (800, 0, 0),
+                 (0, -800, 0)]"""
+
+    for i in movements:
+        facade.move(list(i),
+                    self.__x_axis_inverted,
+                    self.__y_axis_inverted)
+
 def move_to(vector, inverted_x_axis, inverted_y_axis):
     """ Sends the movement instruction to the appropriate control system
 

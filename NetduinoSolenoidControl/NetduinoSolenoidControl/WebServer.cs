@@ -2,37 +2,37 @@
  * commmands from python module. */
 
 using System;
-using Microsoft.SPOT;
 using System.Net.Sockets;
 using System.Net;
 using System.Threading;
 using System.Text;
 using Microsoft.SPOT.Hardware;
 using SecretLabs.NETMF.Hardware.Netduino;
+using Microsoft.SPOT;
 
 namespace NetduinoSolenoidControl
 {
     public class WebServer : IDisposable
     {
-        private float desired_current = 2;
+        private double desired_current = 2;
     
         private Socket socket = null;
         private const int MaximumValue = 1023;
-        private const float AnalogReference = 3.3f;
+        private const double AnalogReference = 3.3f;
         private const double SENSOR_RESISTANCE = 0.5;
-        private const float CURRENT_THRESHOLD = 0.1;
+        private double CURRENT_THRESHOLD = 0.1;
 
-        private float pwm_val = 0.5;
-        private float pwm_right_val = 0.5;
-        private float pwm_left_val = 0.5;
-        private float pwm_top_val = 0.5;
-        private float pwm_bot_val = 0.5;
+        private double pwm_val = 0.5;
+        private double pwm_right_val = 0.5;
+        private double pwm_left_val = 0.5;
+        private double pwm_top_val = 0.5;
+        private double pwm_bot_val = 0.5;
 
-        private PWM pwm_top = new PWM(PWMChannels.PWM_PIN_D5, 10000, 1.0, false);
-        private PWM pwm_bot = new PWM(PWMChannels.PWM_PIN_D6, 10000, 1.0, false);
-        private PWM pwm_right = new PWM(PWMChannels.PWM_PIN_D9, 10000, 1.0, false);
-        private PWM pwm_left = new PWM(PWMChannels.PWM_PIN_D10, 10000, 1.0, false);
-        private PWM pwm_led = new PWM(PWMChannels.PWM_ONBOARD_LED, 100, 1.0, false);
+        private PWM pwm_top;
+        private PWM pwm_bot;
+        private PWM pwm_right;
+        private PWM pwm_left;
+        private PWM pwm_led;
 
         private AnalogInput adcPort;
         private AnalogInput adc_top;
@@ -44,24 +44,34 @@ namespace NetduinoSolenoidControl
         
         public WebServer()
         {
-            pwm_top = new PWM(PWMChannels.PWM_PIN_D5, 10000, 1.0, false);
-            pwm_bot = new PWM(PWMChannels.PWM_PIN_D6, 10000, 1.0, false);
-            pwm_right = new PWM(PWMChannels.PWM_PIN_D9, 10000, 1.0, false);
-            pwm_left = new PWM(PWMChannels.PWM_PIN_D10, 10000, 1.0, false);
-            pwm_led = new PWM(PWMChannels.PWM_ONBOARD_LED, 100, 1.0, false);
-        
-            pwm_top.Start();
-            pwm_bot.Start();
-            pwm_right.Start();
-            pwm_left.Start();
-            pwm_led.Start();
+            this.pwm_top = new PWM(PWMChannels.PWM_PIN_D5, 10000, 1.0, false);
+            this.pwm_bot = new PWM(PWMChannels.PWM_PIN_D9, 10000, 1.0, false);
+            this.pwm_right = new PWM(PWMChannels.PWM_PIN_D6, 10000, 1.0, false);
+            this.pwm_left = new PWM(PWMChannels.PWM_PIN_D10, 10000, 1.0, false);
+            this.pwm_led = new PWM(PWMChannels.PWM_ONBOARD_LED, 100, 1.0, false);
 
-            adcPort = new AnalogInput(Pins.GPIO_PIN_A0);
+            this.pwm_top.Start();
+            this.pwm_bot.Start();
+            this.pwm_right.Start();
+            this.pwm_left.Start();
+            this.pwm_led.Start();
+
+            this.pwm_top.DutyCycle = 0;
+            this.pwm_bot.DutyCycle = 0;
+            this.pwm_right.DutyCycle = 0;
+            this.pwm_left.DutyCycle = 0;
+
+            this.adcPort = new AnalogInput(AnalogChannels.ANALOG_PIN_A0);
+            this.adc_top = new AnalogInput(AnalogChannels.ANALOG_PIN_A1); //PWM5
+            this.adc_bot = new AnalogInput(AnalogChannels.ANALOG_PIN_A2); //PWM6
+            this.adc_right = new AnalogInput(AnalogChannels.ANALOG_PIN_A3); //PWM9
+            this.adc_left = new AnalogInput(AnalogChannels.ANALOG_PIN_A4); //PWM10
+            /*adcPort = new AnalogInput(Pins.GPIO_PIN_A0);
             adc_top = new AnalogInput(Pins.GPIO_PIN_A1); //PWM5
             adc_bot = new AnalogInput(Pins.GPIO_PIN_A2); //PWM6
             adc_right = new AnalogInput(Pins.GPIO_PIN_A3); //PWM9
-            adc_left = new AnalogInput(Pins.GPIO_PIN_A4); //PWM10
-
+            adc_left = new AnalogInput(Pins.GPIO_PIN_A4); //PWM10*/
+            
             //Initialize Socket class
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             //Request and bind to an IP from DHCP server
@@ -105,7 +115,8 @@ namespace NetduinoSolenoidControl
                             }
                             else if (words[0] == "ON")
                             {
-                                adjust_pwm(this.pwm_top, this.adc_top, this.pwm_top_val);
+                                //adjust_pwm(ref this.pwm_top, ref this.pwm_top_val);
+                                adjust_pwm(ref this.pwm_top, ref this.adc_top, ref this.pwm_top_val);
                             }
                             
                             response = this.pwm_top_val.ToString();
@@ -118,7 +129,8 @@ namespace NetduinoSolenoidControl
                             }
                             else if (words[0] == "ON")
                             {
-                                adjust_pwm(this.pwm_bot, this.adc_bot, this.pwm_bot_val);
+                                //adjust_pwm(ref this.pwm_bot, ref this.pwm_bot_val);
+                                adjust_pwm(ref this.pwm_bot, ref this.adc_bot, ref this.pwm_bot_val);
                             }
                             
                             response = this.pwm_bot_val.ToString();
@@ -131,7 +143,8 @@ namespace NetduinoSolenoidControl
                             }
                             else if (words[0] == "ON")
                             {
-                                adjust_pwm(this.pwm_left, this.adc_left, this.pwm_left_val);
+                                //adjust_pwm(ref this.pwm_left, ref this.pwm_left_val);
+                                adjust_pwm(ref this.pwm_left, ref this.adc_left, ref this.pwm_left_val);
                             }
                             
                             response = this.pwm_left_val.ToString();
@@ -144,7 +157,8 @@ namespace NetduinoSolenoidControl
                             }
                             else if (words[0] == "ON")
                             {
-                                adjust_pwm(this.pwm_right, this.adc_right, this.pwm_right_val);
+                                //adjust_pwm(ref this.pwm_right, ref this.pwm_right_val);
+                                adjust_pwm(ref this.pwm_right, ref this.adc_right, ref this.pwm_right_val);
                             }
                             
                             response = this.pwm_right_val.ToString();
@@ -159,7 +173,35 @@ namespace NetduinoSolenoidControl
                             {
                                 sol_under.Write(true);
                             }
+                        }/*
+                        else if (words[1] == "INCREMENT")
+                        {
+                            if (pwm_val + 0.10 <= 1.0)
+                            {
+                                pwm_val += 0.10;
+                            }
+                            else
+                            {
+                                pwm_val = 1.0;
+                            }
+                            pwm_led.DutyCycle = pwm_val;
                         }
+                        else if (words[1] == "DECREMENT")
+                        {
+                            if (pwm_val - 0.10 >= 0.0)
+                            {
+                                pwm_val -= 0.10;
+                            }
+                            else
+                            {
+                                pwm_val = 0.0;
+                            }
+                            pwm_top_val = pwm_val;
+                            pwm_bot_val = pwm_val;
+                            pwm_right_val = pwm_val;
+                            pwm_left_val = pwm_val;
+                            pwm_led.DutyCycle = pwm_val;
+                        }*/
                         else if (words[1] == "INCREMENT")
                         {
                             this.desired_current += 0.10;
@@ -174,9 +216,10 @@ namespace NetduinoSolenoidControl
                         }
                         else if (words[1] == "GETVOLTAGE")
                         {
-                            float current = get_current(this.adcPort);
+                            /*double current = get_current(this.adcPort);
                             
-                            response = current.ToString();
+                            response = current.ToString();*/
+                            response = "a";
                         }
                         
                         //Compose a response
@@ -194,22 +237,25 @@ namespace NetduinoSolenoidControl
             Dispose();
         }
 
-        private void adjust_pwm(ref PWM pwm, ref AnalogInput adc, ref float pwm_val){
+        //private void adjust_pwm(ref PWM pwm, ref double pwm_val){
+        private void adjust_pwm(ref PWM pwm, ref AnalogInput adc, ref double pwm_val){
             pwm.DutyCycle = pwm_val;
             
             int temp = 0;
-            float current_voltage = 0;
+            double current_voltage = 0;
             
             while (temp++ < 10 && current_voltage <= 0){
                 current_voltage = get_voltage(adc);
             }
+
+            Debug.Print(current_voltage.ToString());
             
             if (current_voltage > 0){
                 temp = 0;
                 while (!(this.get_current(current_voltage) > this.desired_current - this.CURRENT_THRESHOLD && this.get_current(current_voltage) < this.desired_current + this.CURRENT_THRESHOLD) && temp++ < 10){
-                    float desired_voltage = this.desired_current * SENSOR_RESISTANCE;
+                    double desired_voltage = this.desired_current * SENSOR_RESISTANCE;
                     
-                    float factor = desired_voltage / current_voltage;
+                    double factor = desired_voltage / current_voltage;
                     
                     pwm_val *= factor;
                     
@@ -223,21 +269,21 @@ namespace NetduinoSolenoidControl
             }
         }
             
-        private float get_voltage(AnalogInput input){
+        private double get_voltage(AnalogInput input){
             // read a digital value from the ADC
-            int digitalValue = input.Read();
+            double digitalValue = input.Read();
 
             // convert digital value to analog voltage value
-            return (float)digitalValue / MaximumValue * AnalogReference;
+            return digitalValue * AnalogReference;
         }
 
-        private float get_current(AnalogInput input){
-            float analogValue = get_voltage(input);
+        private double get_current(AnalogInput input){
+            double analogValue = get_voltage(input);
 
             return analogValue / SENSOR_RESISTANCE;
         }
 
-        private float get_current(float voltage){
+        private double get_current(double voltage){
             return voltage / SENSOR_RESISTANCE;
         }
          

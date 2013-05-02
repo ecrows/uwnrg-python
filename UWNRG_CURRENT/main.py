@@ -33,7 +33,7 @@ class  MainWindow:
 
         if magnitude.isdigit():
             magnitude = int(magnitude)
-            facade.move(tuple(magnitude * x for x in direction),
+            facade.move(list(magnitude * x for x in direction),
                                   self.__x_axis_inverted,
                                   self.__y_axis_inverted)
         else:
@@ -68,6 +68,9 @@ class  MainWindow:
         elif key_pressed in speed_change and self.__keyboard_input:
             facade.change_speed(speed_change[key_pressed])
 
+    def __figure_eight(self, menu_item):
+        facade.figure_eight()
+
     def __init__(self):
         filename = "GUI.glade"
         handlers = {
@@ -92,7 +95,8 @@ class  MainWindow:
             "on_setup_menu_camera_activate" : self.__open_img_window,
             "on_img_ok_close_clicked" : self.__save_image_settings,
             "on_tools_menu_stop_camera_feed_activate" : self.__stop_feed,
-            "on_tools_menu_start_camera_feed_activate" : self.__start_feed
+            "on_tools_menu_start_camera_feed_activate" : self.__start_feed,
+            "on_Figure Eight_activate" : self.__figure_eight
         }
 
         self.__builder = gtk.Builder()
