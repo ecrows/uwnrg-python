@@ -40,17 +40,6 @@ Garry Ng</property>
       </object>
     </child>
   </object>
-  <object class="GtkListStore" id="com_port_liststore">
-    <columns>
-      <!-- column-name com-port -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">problem with clearing liststore if you can see this</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkDialog" id="actuator_setup_window">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -186,6 +175,17 @@ com-port:</property>
       <action-widget response="0">close_help_button1</action-widget>
     </action-widgets>
   </object>
+  <object class="GtkListStore" id="com_port_liststore">
+    <columns>
+      <!-- column-name com-port -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">problem with clearing liststore if you can see this</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkDialog" id="help_window">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -276,6 +276,7 @@ until someone writes the help documents.</property>
   <object class="GtkWindow" id="main_window">
     <property name="can_focus">False</property>
     <signal name="destroy" handler="on_main_window_destroy" swapped="no"/>
+    <signal name="key-release-event" handler="on_main_window_key_release_event" swapped="no"/>
     <signal name="key-press-event" handler="on_main_window_key_press_event" swapped="no"/>
     <child>
       <object class="GtkVBox" id="main_vbox">
@@ -356,6 +357,16 @@ until someone writes the help documents.</property>
                         <property name="label" translatable="yes">Actuators</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_setup_menu_actuators_activate" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="setup_menu_solenoids">
+                        <property name="use_action_appearance">False</property>
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Solenoids</property>
+                        <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_setup_menu_solenoids_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -456,13 +467,13 @@ until someone writes the help documents.</property>
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <child>
-                      <object class="GtkMenuItem" id="Figure Eight">
+                      <object class="GtkMenuItem" id="figure_eight">
                         <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
-                        <property name="label" translatable="yes">figure_eight</property>
+                        <property name="label" translatable="yes">Figure Eight</property>
                         <property name="use_underline">True</property>
-                        <signal name="activate" handler="on_Figure Eight_activate" swapped="no"/>
+                        <signal name="activate" handler="on_figure_eight_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -789,6 +800,13 @@ until someone writes the help documents.</property>
       </object>
     </child>
     <child>
+      <object class="GtkMenuItem" id="setup_menu_solenoids1">
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+    <child>
       <object class="GtkSeparatorMenuItem" id="setup_menu_separator1">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
@@ -801,5 +819,139 @@ until someone writes the help documents.</property>
         <property name="can_focus">False</property>
       </object>
     </child>
+  </object>
+  <object class="GtkDialog" id="solenoid_setup_window">
+    <property name="can_focus">False</property>
+    <property name="border_width">5</property>
+    <property name="type_hint">normal</property>
+    <child internal-child="vbox">
+      <object class="GtkVBox" id="dialog-vbox6">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <property name="spacing">2</property>
+        <child internal-child="action_area">
+          <object class="GtkHButtonBox" id="dialog-action_area6">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="layout_style">end</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkButton" id="close_help_button2">
+                <property name="label" translatable="yes">OK</property>
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">True</property>
+              </object>
+              <packing>
+                <property name="expand">False</property>
+                <property name="fill">False</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">True</property>
+            <property name="pack_type">end</property>
+            <property name="position">0</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkTable" id="table2">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="n_rows">3</property>
+            <property name="n_columns">2</property>
+            <child>
+              <object class="GtkLabel" id="solenoid_step_label1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xpad">10</property>
+                <property name="ypad">10</property>
+                <property name="label" translatable="yes">Solenoid Step
+- milliseconds per key press -</property>
+                <property name="justify">center</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="solenoid_step_entry1">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">●</property>
+                <property name="invisible_char_set">True</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkCheckButton" id="toggle_solenoid_adc">
+                <property name="label" translatable="yes">Toggle ADC</property>
+                <property name="use_action_appearance">False</property>
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="receives_default">False</property>
+                <property name="draw_indicator">True</property>
+              </object>
+              <packing>
+                <property name="right_attach">2</property>
+                <property name="top_attach">2</property>
+                <property name="bottom_attach">3</property>
+                <property name="x_options">GTK_EXPAND</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkEntry" id="solenoid_adc_entry">
+                <property name="visible">True</property>
+                <property name="can_focus">True</property>
+                <property name="invisible_char">●</property>
+                <property name="invisible_char_set">True</property>
+                <property name="primary_icon_activatable">False</property>
+                <property name="secondary_icon_activatable">False</property>
+                <property name="primary_icon_sensitive">True</property>
+                <property name="secondary_icon_sensitive">True</property>
+              </object>
+              <packing>
+                <property name="left_attach">1</property>
+                <property name="right_attach">2</property>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkLabel" id="solenoid_adc_label">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="xpad">10</property>
+                <property name="ypad">10</property>
+                <property name="label" translatable="yes">Solenoid Amperage
+- Remove metallic objects from stage -</property>
+                <property name="justify">center</property>
+              </object>
+              <packing>
+                <property name="top_attach">1</property>
+                <property name="bottom_attach">2</property>
+              </packing>
+            </child>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">1</property>
+          </packing>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="0">close_help_button2</action-widget>
+    </action-widgets>
   </object>
 </interface>

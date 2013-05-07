@@ -14,7 +14,18 @@ def move(vector, inverted_x_axis, inverted_y_axis):
     """
     _movement_controller.move(vector, inverted_x_axis, inverted_y_axis)
 
-def facade():
+def end_move(vector, inverted_x_axis, inverted_y_axis):
+    """ Sends the end movement instruction to the appropriate control system
+
+    Keyword Arguments:
+    vector -- movement vector
+    invert_x_axis -- boolean of whether to invert on the x-axis
+    invert_y_axis -- boolean of whether to invert on the y-axis
+
+    """
+    _movement_controller.end_move(vector, inverted_x_axis, inverted_y_axis)
+
+def figure_eight():
     movements = [(0, -800, 0),
                  (800, 0, 0),
                  (0, -800, 0),
@@ -36,6 +47,15 @@ def facade():
         facade.move(list(i),
                     self.__x_axis_inverted,
                     self.__y_axis_inverted)
+
+def set_desired_current(desired_current):
+    _movement_controller.set_desired_current(desired_current)
+
+def toggle_adc():
+    return _movement_controller.toggle_adc()
+
+def get_desired_current():
+    return _movement_controller.get_desired_current()
 
 def move_to(vector, inverted_x_axis, inverted_y_axis):
     """ Sends the movement instruction to the appropriate control system

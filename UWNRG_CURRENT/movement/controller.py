@@ -10,7 +10,18 @@ class Controller():
     __actuators = None
     __solenoids = None
 
-    """ Facade for all controlling modes """
+    def set_desired_current(self, desired_current):
+        if self.__solenoids:
+            self.__solenoids.set_desired_current(desired_current)
+        else:
+            return None
+
+    def get_desired_current(self):
+        if self.__solenoids:
+            return self.__solenoids.get_desired_current()
+        else:
+            return None
+
     def get_available_com_ports(self):
         """ Returns a list of available com-ports """
         return actuators.get_available_com_ports()
@@ -29,6 +40,12 @@ class Controller():
         """
         if not self.__actuators:
             self.__actuators = actuators.Actuators(com_port)
+
+    def toggle_adc():
+        if self.__solenoids:
+            return self.__solenoids.toggle_adc()
+        else:
+            return None
 
     def initialize_solenoids(self):
         """ Initializes the actuators given their com-port and the number of
@@ -53,6 +70,30 @@ class Controller():
                 self.__solenoids.pwm_change(increment)
             else:
                 log.log_error("Solenoids have not been initialized")
+
+    def end_move(self, vector, inverted_x_axis, inverted_y_axis):
+        """ Sends the movement instruction to the appropriate control system
+
+        Keyword Arguments:
+        vector -- movement vector
+        invert_x_axis -- boolean of whether to invert on the x-axis
+        invert_y_axis -- boolean of whether to invert on the y-axis
+
+        """
+        if self.__control_schema == _EMMA_ACTUATORS:
+            if len(vector) != 3:
+                log.log_error("3 arguments were expected, " \
+                              "{0} were given.".format(len(vector)))
+                return
+
+            if self.__actuators:
+                self.__actuators.end_move(vector[:2],
+                                      inverted_x_axis,
+                                      inverted_y_axis)
+                #haven't implemented rotation yet
+            else:
+                log.log_error("Actuator have not been initialized" \
+                              " with a com-port properly.")
 
     def move(self, vector, inverted_x_axis, inverted_y_axis):
         """ Sends the movement instruction to the appropriate control system
@@ -84,7 +125,6 @@ class Controller():
                 return
 
             if self.__solenoids:
-                print self.__solenoids.get_current()
                 self.__solenoids.move(vector[:2],
                                       inverted_x_axis,
                                       inverted_y_axis)

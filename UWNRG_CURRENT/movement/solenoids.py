@@ -7,7 +7,9 @@ from socket import error as socket_error
 class Solenoids():
     _INCREMENT = "INCREMENT"
     _DECREMENT = "DECREMENT"
-    _GETCURRENT = "GETCURRENT"
+    _GETCURRENT = "GET_DESIRED_CURRENT"
+    _SETCURRENT = "SET_DESIRED_CURRENT"
+    _TOGGLE_ADC = "TOGGLEADC"
     _DOWN = "DOWN"
     _LEFT = "LEFT"
     _RIGHT = "RIGHT"
@@ -16,17 +18,40 @@ class Solenoids():
     _conn = httplib.HTTPConnection("10.0.0.32", 80)
     _solenoid_number = {_LEFT : "3", _RIGHT : "4", _UP : "1", _DOWN : "2", _BRAKE : "5"}
 
-    def get_current(self):
-        """ Gets the current using ADC0
+    def toggle_adc(self):
+        """ Returns the new value of toggling adc
+
+        """
+        try:
+            self._conn.request("ADC", self.__TOGGLE_ADC)
+            response = self._conn.getresponse()
+            log.log_info(response)
+            return response.read() == "true"
+        except socket_error as serr:
+            log.log_error("Failed communication with HTTP server.")
+
+    def set_desired_current(self, desired_current):
+        """ Sets the desired current
+
+        """
+        try:
+            self._conn.request("ADC", self._SETCURRENT + " " + str(desired_current))
+            response = self._conn.getresponse()
+        except socket_error as serr:
+            log.log_error("Failed communication with HTTP server.")
+        return None
+
+    def get_desired_current(self):
+        """ Gets the desired current
 
         """
         try:
             self._conn.request("ADC", self._GETCURRENT)
             response = self._conn.getresponse()
-            #log.log_info(response.read())
-            #return response.read()
+            return float(response.read())
         except socket_error as serr:
             log.log_error("Failed communication with HTTP server.")
+        return None
 
     def pwm_change(self, increment):
         """ Adjusts the PWM for the solenoids
@@ -80,9 +105,6 @@ class Solenoids():
             response = self._conn.getresponse()
             self._conn.request("ON", self._solenoid_number[direction])
             response = self._conn.getresponse()
-
-            #time.sleep(0.01)
-            time.sleep(1)
 
             self._conn.request("OFF", self._solenoid_number[direction])
             response = self._conn.getresponse()

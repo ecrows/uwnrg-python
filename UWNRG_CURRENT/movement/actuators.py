@@ -42,6 +42,10 @@ class Actuators():
                  "HOME_OFFSET":47,
                  "SPEED":42}
     __properties = {}
+    __in_x_movement = False
+    __x_direction = 0
+    __in_y_movement = False
+    __y_direction = 0
 
     def flush_buffers(self):
         """ Clears the input and output buffer for the serial connection """
@@ -126,6 +130,55 @@ class Actuators():
         self.__ser.write(bytearray([b_0, b_1, b_2, b_3, b_4, b_5]))
         return self.__read_input(b_0)
 
+    def end_move(self, vector, invert_x_axis, invert_y_axis):
+        """ Given input parameters, moves the robot relative to it's current
+        position. It executes first the x component and then the y component.
+
+        Keyword Arguments:
+        self -- actuator object the function was called on
+        vector -- movement vector
+        invert_x_axis -- boolean of whether to invert on the x-axis
+        invert_y_axis -- boolean of whether to invert on the y-axis
+
+        """
+        if (self.__in_x_movement and vector[0] != 0):
+            self.__in_x_movement = False
+            log.log_info("stop x")
+
+            #X Axis
+            device = self.__x_device
+
+            if invert_x_axis:
+                vector[0] *= -1
+
+            byte_array = _convert_int_to_bytes(vector[0])
+
+            self.__issue_command(device,
+                                 23,
+                                 byte_array[0],
+                                 byte_array[1],
+                                 byte_array[2],
+                                 byte_array[3])
+
+        if (self.__in_y_movement and vector[1] != 0):
+            self.__in_y_movement = False
+            log.log_info("stop y")
+
+            #Y Axis
+            device =  self.__y_device
+
+            if invert_y_axis:
+                vector[1] *= -1
+
+            byte_array = _convert_int_to_bytes(vector[1])
+
+            self.__issue_command(device,
+                                 23,
+                                 byte_array[0],
+                                 byte_array[1],
+                                 byte_array[2],
+                                 byte_array[3])
+
     def move(self, vector, invert_x_axis, invert_y_axis):
         """ Given input parameters, moves the robot relative to it's current
         position. It executes first the x component and then the y component.
@@ -137,35 +190,47 @@ class Actuators():
         invert_y_axis -- boolean of whether to invert on the y-axis
 
         """
-        #X Axis
-        device = self.__x_device
+        if (not self.__in_x_movement and vector[0] != 0):
+            self.__in_x_movement = True
+            log.log_info("start x")
 
-        if invert_x_axis:
-            vector[0] *= -1
+            #X Axis
+            device = self.__x_device
 
-        byte_array = _convert_int_to_bytes(vector[0])
+            if invert_x_axis:
+                vector[0] *= -1
 
-        self.__issue_command(device,
-                             21,
-                             byte_array[0],
-                             byte_array[1],
-                             byte_array[2],
-                             byte_array[3])
+            self.__x_direction = -1 if vector[0] < 0 else 1
 
-        #Y Axis
-        device =  self.__y_device
+            byte_array = _convert_int_to_bytes(vector[0])
 
-        if invert_y_axis:
-            vector[1] *= -1
+            self.__issue_command(device,
+                                 22,
+                                 byte_array[0],
+                                 byte_array[1],
+                                 byte_array[2],
+                                 byte_array[3])
 
-        byte_array = _convert_int_to_bytes(vector[1])
+        if (not self.__in_y_movement and vector[1] != 0):
+            self.__in_y_movement = True
+            log.log_info("start y")
 
-        self.__issue_command(device,
-                             21,
-                             byte_array[0],
-                             byte_array[1],
-                             byte_array[2],
-                             byte_array[3])
+            #Y Axis
+            device =  self.__y_device
+
+            if invert_y_axis:
+                vector[1] *= -1
+
+            self.__y_direction = -1 if vector[0] < 0 else 1
+
+            byte_array = _convert_int_to_bytes(vector[1])
+
+            self.__issue_command(device,
+                                 22,
+                                 byte_array[0],
+                                 byte_array[1],
+                                 byte_array[2],
+                                 byte_array[3])
 
     def move_to(self, position_vector, invert_x_axis, invert_y_axis):
         """ Given input parameters, moves the robot to the specified position.
