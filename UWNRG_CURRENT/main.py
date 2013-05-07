@@ -94,7 +94,7 @@ class  MainWindow:
                         self.__y_axis_inverted)
 
     def __figure_eight(self, menu_item):
-        facade.figure_eight()
+        facade.figure_eight(self.__x_axis_inverted, self.__y_axis_inverted)
 
     def __toggle_solenoid_awp(self, menu_item):
         temp = facade.toggle_awp()

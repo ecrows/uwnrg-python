@@ -10,6 +10,15 @@ class Controller():
     __actuators = None
     __solenoids = None
 
+    def figure_eight(self, inverted_x_axis, inverted_y_axis):
+        if self.__actuators:
+            self.__actuators.figure_eight(inverted_x_axis,
+                                          inverted_y_axis)
+            #haven't implemented rotation yet
+        else:
+            log.log_error("Actuator have not been initialized" \
+                          " with a com-port properly.")
+
     def set_desired_current(self, desired_current):
         if self.__solenoids:
             self.__solenoids.set_desired_current(desired_current)

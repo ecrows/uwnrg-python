@@ -106,10 +106,10 @@ class Solenoids():
             self._conn.request("ON", self._solenoid_number[direction])
             response = self._conn.getresponse()
 
-            self._conn.request("OFF", self._solenoid_number[direction])
+            """self._conn.request("OFF", self._solenoid_number[direction])
             response = self._conn.getresponse()
             self._conn.request("ON", self._solenoid_number[self._BRAKE])
-            response = self._conn.getresponse()
+            response = self._conn.getresponse()"""
             #log.log_info(response.read())
         except socket_error as serr:
             log.log_error("Failed communication with HTTP server.")

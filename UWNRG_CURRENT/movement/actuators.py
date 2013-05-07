@@ -5,6 +5,7 @@ import serial.tools.list_ports as list_ports
 import struct as struct
 import time as time
 
+
 def _convert_bytes_to_int(byte_array):
     """ Returns a signed integer from a bytearray type (little endian)
 
@@ -40,12 +41,39 @@ class Actuators():
     _SETTINGS = {"MAX_POSITION":44,
                  "ACCELERATION":43,
                  "HOME_OFFSET":47,
-                 "SPEED":42}
+                 "SPEED":42,
+                 "RETURN_CURRENT_POSITION":45}
     __properties = {}
     __in_x_movement = False
     __x_direction = 0
     __in_y_movement = False
     __y_direction = 0
+
+    def figure_eight(self, inverted_x_axis, inverted_y_axis):
+        x_pos = self.get_setting(self.__x_device, "RETURN_CURRENT_POSITION")
+        y_pos = self.get_setting(self.__y_device, "RETURN_CURRENT_POSITION")
+        x_movement = 470
+        y_movement = 600
+
+        """movements = [(x_pos, -y_movement + y_pos),
+                     (x_movement + x_pos, -y_movement + y_pos),
+                     (x_movement + x_pos, -y_movement * 2 + y_pos),
+                     (x_pos, -y_movement*2 + y_pos),
+                     (x_pos, -y_movement + y_pos),
+                     (x_movement + x_pos, -y_movement + y_pos),
+                     (x_movement + x_pos, y_pos),
+                     (x_pos, y_pos)]"""
+        movements = [(x_movement + x_pos, y_pos),
+                     (x_movement*2 + x_pos, y_movement + y_pos),
+                     (x_movement*3 + x_pos, y_movement + y_pos),
+                     (x_movement*3+ x_pos, y_pos),
+                     (x_movement*2+ x_pos, y_pos),
+                     (x_movement + x_pos, y_movement + y_pos),
+                     (x_pos, y_movement + y_pos),
+                     (x_pos, y_pos)]
+
+        for i in movements:
+            self.move_to(i, inverted_x_axis, inverted_y_axis)
 
     def flush_buffers(self):
         """ Clears the input and output buffer for the serial connection """
@@ -79,6 +107,7 @@ class Actuators():
                                                 0,
                                                 0,
                                                 0)
+                print response
 
                 #updates self.__properties with the returned values
                 for response_i in response:
@@ -246,9 +275,9 @@ class Actuators():
         #X Axis
         device = self.__x_device
 
-        if invert_x_axis:
+        """if invert_x_axis:
             max_pos = self.get_setting(device, "MAX_POSITION")
-            position_vector[0] = max_pos - position_vector[0]
+            position_vector[0] = max_pos - position_vector[0]"""
 
         byte_array = _convert_int_to_bytes(position_vector[0])
 
@@ -262,9 +291,9 @@ class Actuators():
         #Y Axis
         device = self.__y_device
 
-        if invert_y_axis:
+        """if invert_y_axis:
             max_pos = self.get_setting(device, "MAX_POSITION")
-            position_vector[1] = max_pos - position_vector[1]
+            position_vector[1] = max_pos - position_vector[1]"""
 
         byte_array = _convert_int_to_bytes(position_vector[1])
 

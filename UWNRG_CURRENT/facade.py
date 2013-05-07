@@ -25,7 +25,7 @@ def end_move(vector, inverted_x_axis, inverted_y_axis):
     """
     _movement_controller.end_move(vector, inverted_x_axis, inverted_y_axis)
 
-def figure_eight():
+def figure_eight(x_axis_inverted, y_axis_inverted):
     movements = [(0, -800, 0),
                  (800, 0, 0),
                  (0, -800, 0),
@@ -42,11 +42,7 @@ def figure_eight():
                  (0, 800, 0),
                  (800, 0, 0),
                  (0, -800, 0)]"""
-
-    for i in movements:
-        facade.move(list(i),
-                    self.__x_axis_inverted,
-                    self.__y_axis_inverted)
+    _movement_controller.figure_eight(x_axis_inverted, y_axis_inverted)
 
 def set_desired_current(desired_current):
     _movement_controller.set_desired_current(desired_current)
