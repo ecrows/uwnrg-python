@@ -24,7 +24,7 @@ namespace NetduinoSolenoidControl
         private const double SENSOR_RESISTANCE = 0.5;
         private double CURRENT_THRESHOLD = 0.1;
 
-        private double pwm_val = 0.5;
+        private double pwm_val = 0.01;
         private double pwm_right_val = 0.5;
         private double pwm_left_val = 0.5;
         private double pwm_top_val = 0.5;
@@ -43,7 +43,9 @@ namespace NetduinoSolenoidControl
         private AnalogInput adc_left;
         
         private OutputPort sol_under = new OutputPort(Pins.GPIO_PIN_D4, false);
-        
+
+        private int TEMP = 1;
+
         public WebServer()
         {
             this.adc = false;
@@ -70,6 +72,8 @@ namespace NetduinoSolenoidControl
             this.adc_bot = new AnalogInput(AnalogChannels.ANALOG_PIN_A2); //PWM9 - bot
             this.adc_right = new AnalogInput(AnalogChannels.ANALOG_PIN_A3); //PWM6 - right
             this.adc_left = new AnalogInput(AnalogChannels.ANALOG_PIN_A4); //PWM10 - left
+
+            this.sol_under.Write(true);
             
             //Initialize Socket class
             socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
@@ -108,61 +112,57 @@ namespace NetduinoSolenoidControl
 
                         if (words[1] == "1")
                         {
-                            if (words[0] == "OFF")
-                            {
-                                this.pwm_top.DutyCycle = 0;
-                            }
-                            else if (words[0] == "ON")
+                            if (words[0] == "ON")
                             {
                                 adjust_pwm(ref this.pwm_top, ref this.pwm_top_val);
                             }
-                            
+
+                            //this.sol_under.Write(true);
+                            Thread.Sleep(TEMP);
+                            this.pwm_top.DutyCycle = 0;
                             response = this.pwm_top_val.ToString();
                         }
                         else if (words[1] == "2")
                         {
-                            if (words[0] == "OFF")
-                            {
-                                this.pwm_bot.DutyCycle = 0.0; 
-                            }
-                            else if (words[0] == "ON")
+                            if (words[0] == "ON")
                             {
                                 adjust_pwm(ref this.pwm_bot, ref this.pwm_bot_val);
                             }
-                            
+
+                            //this.sol_under.Write(true);
+                            Thread.Sleep(TEMP);
+                            this.pwm_bot.DutyCycle = 0.0;
                             response = this.pwm_bot_val.ToString();
                         }
                         else if (words[1] == "3")
                         {
-                            if (words[0] == "OFF")
-                            { 
-                                this.pwm_left.DutyCycle = 0.0;
-                            }
-                            else if (words[0] == "ON")
+                            if (words[0] == "ON")
                             {
                                 adjust_pwm(ref this.pwm_left, ref this.pwm_left_val);
                             }
-                            
+
+                            //this.sol_under.Write(true);
+                            Thread.Sleep(TEMP);
+                            this.pwm_left.DutyCycle = 0.0;
                             response = this.pwm_left_val.ToString();
                         }
                         else if (words[1] == "4")
                         {
-                            if (words[0] == "OFF")
-                            {
-                                this.pwm_right.DutyCycle = 0.0;
-                            }
-                            else if (words[0] == "ON")
+                            if (words[0] == "ON")
                             {
                                 adjust_pwm(ref this.pwm_right, ref this.pwm_right_val);
                             }
-                            
+
+                            //this.sol_under.Write(true);
+                            Thread.Sleep(TEMP);
+                            this.pwm_right.DutyCycle = 0.0;
                             response = this.pwm_right_val.ToString();
                         }
                         else if (words[1] == "5") //brake   
                         {
                             if (words[0] == "OFF")
                             {
-                                this.sol_under.Write(false);
+                                //this.sol_under.Write(false);
                                 if (this.adc)
                                 {
                                     Debug.Print(get_current(this.adc_brake).ToString());
@@ -170,19 +170,21 @@ namespace NetduinoSolenoidControl
                             }
                             else if (words[0] == "ON")
                             {
-                                this.sol_under.Write(true);
+                                //this.sol_under.Write(true);
                             }
                         }
                         else if (words[1] == "INCREMENT")
                         {
                             this.desired_current += 0.10;
-                            
+                            this.TEMP += 1;
+                            Debug.Print(this.TEMP.ToString());
                             response = this.desired_current.ToString();
                         }
                         else if (words[1] == "DECREMENT")
                         {
                             this.desired_current -= 0.10;
-                            
+                            this.TEMP -= 1;
+                            Debug.Print(this.TEMP.ToString());
                             response = this.desired_current.ToString();
                         }
                         else if (words[1] == "GETVOLTAGE")

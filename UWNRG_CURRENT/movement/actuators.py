@@ -48,32 +48,140 @@ class Actuators():
     __x_direction = 0
     __in_y_movement = False
     __y_direction = 0
+    __step_size = 1.984375
 
     def figure_eight(self, inverted_x_axis, inverted_y_axis):
-        x_pos = self.get_setting(self.__x_device, "RETURN_CURRENT_POSITION")
-        y_pos = self.get_setting(self.__y_device, "RETURN_CURRENT_POSITION")
-        x_movement = 470
-        y_movement = 600
+        x_max = 1400.0
+        y_max = 600.0
+        y_max_speed = 3000.0
+        x_max_speed = 1200.0
+        x_right = _convert_int_to_bytes(x_max_speed)
+        x_left = _convert_int_to_bytes(-x_max_speed)
+        y_up = _convert_int_to_bytes(y_max_speed)
+        y_down = _convert_int_to_bytes(-y_max_speed)
+        y_stop = _convert_int_to_bytes(0)
+        delay = 0.013
+        height_distance = 1300.0
+        width_distance = 3400.0
 
-        """movements = [(x_pos, -y_movement + y_pos),
-                     (x_movement + x_pos, -y_movement + y_pos),
-                     (x_movement + x_pos, -y_movement * 2 + y_pos),
-                     (x_pos, -y_movement*2 + y_pos),
-                     (x_pos, -y_movement + y_pos),
-                     (x_movement + x_pos, -y_movement + y_pos),
-                     (x_movement + x_pos, y_pos),
-                     (x_pos, y_pos)]"""
-        movements = [(x_movement + x_pos, y_pos),
-                     (x_movement*2 + x_pos, y_movement + y_pos),
-                     (x_movement*3 + x_pos, y_movement + y_pos),
-                     (x_movement*3+ x_pos, y_pos),
-                     (x_movement*2+ x_pos, y_pos),
-                     (x_movement + x_pos, y_movement + y_pos),
-                     (x_pos, y_movement + y_pos),
-                     (x_pos, y_pos)]
+        x_time = width_distance / self.__actuator_speed_to_actual_speed(x_max_speed)
 
-        for i in movements:
-            self.move_to(i, inverted_x_axis, inverted_y_axis)
+        height_time = height_distance / self.__actuator_speed_to_actual_speed(y_max_speed)
+
+        flat_time = (x_time - height_time * 2) / 2
+        initial_x_time = x_time - flat_time - height_time * 3 / 2
+
+        self.__issue_command(self.__x_device,
+                             22,
+                             x_right[0],
+                             x_right[1],
+                             x_right[2],
+                             x_right[3])
+
+        time.sleep(initial_x_time - delay)
+
+        self.__issue_command(self.__y_device,
+                             22,
+                             y_down[0],
+                             y_down[1],
+                             y_down[2],
+                             y_down[3])
+
+        time.sleep(height_time)
+
+        self.__issue_command(self.__y_device,
+                             23,
+                             0,
+                             0,
+                             0,
+                             0)
+
+        time.sleep(flat_time)
+
+        self.__issue_command(self.__y_device,
+                             22,
+                             y_up[0],
+                             y_up[1],
+                             y_up[2],
+                             y_up[3])
+
+        time.sleep(height_time/2)
+
+        self.__issue_command(self.__x_device,
+                             22,
+                             x_left[0],
+                             x_left[1],
+                             x_left[2],
+                             x_left[3])
+
+        time.sleep(height_time/2)
+
+        self.__issue_command(self.__y_device,
+                             23,
+                             0,
+                             0,
+                             0,
+                             0)
+
+        time.sleep(flat_time)
+
+        self.__issue_command(self.__y_device,
+                             22,
+                             y_down[0],
+                             y_down[1],
+                             y_down[2],
+                             y_down[3])
+
+        time.sleep(height_time)
+
+        self.__issue_command(self.__y_device,
+                             23,
+                             0,
+                             0,
+                             0,
+                             0)
+
+        time.sleep(flat_time)
+
+        self.__issue_command(self.__y_device,
+                             22,
+                             y_up[0],
+                             y_up[1],
+                             y_up[2],
+                             y_up[3])
+
+        time.sleep(height_time/2)
+
+        self.__issue_command(self.__x_device,
+                             22,
+                             x_right[0],
+                             x_right[1],
+                             x_right[2],
+                             x_right[3])
+
+        time.sleep(height_time/2)
+
+        self.__issue_command(self.__y_device,
+                             23,
+                             0,
+                             0,
+                             0,
+                             0)
+
+        time.sleep(flat_time*3/2)
+
+        self.__issue_command(self.__x_device,
+                             23,
+                             0,
+                             0,
+                             0,
+                             0)
+
+    def __actual_speed_to_actuator_speed(self, speed):
+        return speed / 9.375 / self.__step_size
+
+    def __actuator_speed_to_actual_speed(self, speed):
+        return speed * 9.375 * self.__step_size
 
     def flush_buffers(self):
         """ Clears the input and output buffer for the serial connection """
@@ -172,41 +280,29 @@ class Actuators():
         """
         if (self.__in_x_movement and vector[0] != 0):
             self.__in_x_movement = False
+            self.__x_direction = 0
             log.log_info("stop x")
 
             #X Axis
-            device = self.__x_device
-
-            if invert_x_axis:
-                vector[0] *= -1
-
-            byte_array = _convert_int_to_bytes(vector[0])
-
-            self.__issue_command(device,
+            self.__issue_command(self.__x_device,
                                  23,
-                                 byte_array[0],
-                                 byte_array[1],
-                                 byte_array[2],
-                                 byte_array[3])
+                                 0,
+                                 0,
+                                 0,
+                                 0)
 
         if (self.__in_y_movement and vector[1] != 0):
             self.__in_y_movement = False
+            self.__y_direction = 0
             log.log_info("stop y")
 
             #Y Axis
-            device =  self.__y_device
-
-            if invert_y_axis:
-                vector[1] *= -1
-
-            byte_array = _convert_int_to_bytes(vector[1])
-
-            self.__issue_command(device,
+            self.__issue_command(self.__y_device,
                                  23,
-                                 byte_array[0],
-                                 byte_array[1],
-                                 byte_array[2],
-                                 byte_array[3])
+                                 0,
+                                 0,
+                                 0,
+                                 0)
 
     def move(self, vector, invert_x_axis, invert_y_axis):
         """ Given input parameters, moves the robot relative to it's current
@@ -219,42 +315,52 @@ class Actuators():
         invert_y_axis -- boolean of whether to invert on the y-axis
 
         """
+        if (vector[0] != 0 and self.__in_x_movement and self.__x_direction != 0):
+            temp = -1 if vector[0] < 0 else 1
+
+            if temp != self.__x_direction:
+                self.end_move([temp, 0], invert_x_axis, invert_y_axis)
+
         if (not self.__in_x_movement and vector[0] != 0):
             self.__in_x_movement = True
-            log.log_info("start x")
 
             #X Axis
-            device = self.__x_device
-
             if invert_x_axis:
                 vector[0] *= -1
+
+            log.log_info("start x " + str(vector[0]))
 
             self.__x_direction = -1 if vector[0] < 0 else 1
 
             byte_array = _convert_int_to_bytes(vector[0])
 
-            self.__issue_command(device,
+            self.__issue_command(self.__x_device,
                                  22,
                                  byte_array[0],
                                  byte_array[1],
                                  byte_array[2],
                                  byte_array[3])
 
+        if (vector[1] != 0 and self.__in_y_movement and self.__y_direction != 0):
+            temp = -1 if vector[1] < 0 else 1
+
+            if temp != self.__y_direction:
+                self.end_move([0, temp], invert_x_axis, invert_y_axis)
+
         if (not self.__in_y_movement and vector[1] != 0):
             self.__in_y_movement = True
-            log.log_info("start y")
 
             #Y Axis
-            device =  self.__y_device
-
             if invert_y_axis:
                 vector[1] *= -1
 
-            self.__y_direction = -1 if vector[0] < 0 else 1
+            log.log_info("start y " + str(vector[1]))
+
+            self.__y_direction = -1 if vector[1] < 0 else 1
 
             byte_array = _convert_int_to_bytes(vector[1])
 
-            self.__issue_command(device,
+            self.__issue_command(self.__y_device,
                                  22,
                                  byte_array[0],
                                  byte_array[1],
@@ -325,7 +431,7 @@ class Actuators():
             while self.__ser.inWaiting() > 0:
                 l.append(self.__read_byte())
 
-        print l
+        #print l
         return l
 
     def __read_byte(self):
