@@ -67,7 +67,7 @@ class Controller():
         if not self.__solenoids:
             self.__solenoids = solenoids.Solenoids()
 
-    def speed_change(self, increment):
+    def speed_change(self, new_value, increment):
         """  Changes the speed of movement for the controller
 
         Keyword Arguments:
@@ -76,9 +76,22 @@ class Controller():
         """
         if self.__control_schema == _EMMA_SOLENOIDS:
             if self.__solenoids:
-                self.__solenoids.pwm_change(increment)
+                self.__solenoids.pwm_change(new_value, increment)
             else:
                 log.log_error("Solenoids have not been initialized")
+        if self.__control_schema == _EMMA_ACTUATORS:
+            if self.__actuators:
+                self.__actuators.step_change(new_value, increment)
+            else:
+                log.log_error("Actuator have not been initialized" \
+                              " with a com-port properly.")
+
+    def get_speed(self):
+        if self.__control_schema == _EMMA_ACTUATORS:
+            if self.__actuators:
+                return self.__actuators.get_step()
+            else:
+                return actuators.get_default_speed()
 
     def end_move(self, vector, inverted_x_axis, inverted_y_axis):
         """ Sends the movement instruction to the appropriate control system

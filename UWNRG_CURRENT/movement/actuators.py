@@ -5,6 +5,11 @@ import serial.tools.list_ports as list_ports
 import struct as struct
 import time as time
 
+DEFAULT_SPEED = 1
+
+def get_default_speed():
+    print DEFAULT_SPEED
+    return DEFAULT_SPEED #do better
 
 def _convert_bytes_to_int(byte_array):
     """ Returns a signed integer from a bytearray type (little endian)
@@ -49,6 +54,24 @@ class Actuators():
     __in_y_movement = False
     __y_direction = 0
     __step_size = 1.984375
+    __variable_step_size = DEFAULT_SPEED
+
+    def get_step(self):
+        return self.__variable_step_size
+
+    def step_change(self, new_value, increment):
+        if new_value != None and new_value >= 0:
+            log.log_info("Changing step size to " + str(new_value))
+            self.__variable_step_size = new_value
+
+        if increment != None:
+            temp = self.__variable_step_size + increment
+
+            if temp < 0:
+                temp = 0
+
+            log.log_info("Changing step size from " + str(self.__variable_step_size) + " to " + str(temp))
+            self.__variable_step_size = temp
 
     def figure_eight(self, inverted_x_axis, inverted_y_axis):
         x_max = 1400.0
@@ -315,6 +338,8 @@ class Actuators():
         invert_y_axis -- boolean of whether to invert on the y-axis
 
         """
+        vector = [x * self.__variable_step_size for x in vector]
+
         if (vector[0] != 0 and self.__in_x_movement and self.__x_direction != 0):
             temp = -1 if vector[0] < 0 else 1
 

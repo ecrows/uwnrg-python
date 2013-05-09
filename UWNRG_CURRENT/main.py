@@ -62,12 +62,12 @@ class  MainWindow:
 
         if key_pressed in direction_conversion and self.__keyboard_input:
             direction = direction_conversion[key_pressed]
-            direction = [x * self.__actuator_step for x in direction]
+            direction = [x for x in direction]
             facade.move(direction,
                         self.__x_axis_inverted,
                         self.__y_axis_inverted)
         elif key_pressed in speed_change and self.__keyboard_input:
-            facade.change_speed(speed_change[key_pressed])
+            facade.change_speed(None, speed_change[key_pressed])
 
     def __end_keyboard_movement_instruction(self, window, event):
         """ Ends Movment Instruction to facade
@@ -146,7 +146,6 @@ class  MainWindow:
         self.__log = log.Log()
         self.__x_axis_inverted = False
         self.__y_axis_inverted = False
-        self.__actuator_step = 1
         self.__solenoid_step = 1
 
         self.__log.set_buffer(self.__builder.get_object(
@@ -265,7 +264,7 @@ class  MainWindow:
 
         #set the current actuator step value in the textbox
         actuator_step_entry = self.__builder.get_object("actuator_step_entry")
-        actuator_step_entry.set_text(str(self.__actuator_step))
+        actuator_step_entry.set_text(str(facade.get_speed()))
 
         actuator_setup_window = self.__builder.get_object("actuator_setup_window")
         # do not listen for close events in order for the close button on the
@@ -280,7 +279,7 @@ class  MainWindow:
         actuator_step = actuator_step_entry.get_text()
 
         if actuator_step.isdigit():
-            self.__actuator_step = int(actuator_step)
+            facade.change_speed(int(actuator_step), None)
         else:
             log.log_error("The magnitude of actuator step must be an integer,"\
                           " '{0}' is not an integer.".format(magnitude))

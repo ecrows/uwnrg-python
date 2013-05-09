@@ -53,24 +53,25 @@ class Solenoids():
             log.log_error("Failed communication with HTTP server.")
         return None
 
-    def pwm_change(self, increment):
+    def pwm_change(self, new_value, increment):
         """ Adjusts the PWM for the solenoids
 
         Keyword Arguments:
         increment -- whether the speed is increasing (1) or decreasing (-1)
 
         """
-        if increment==1:
-            log.log_info("Incrementing PWM voltage.")
-        else:
-            log.log_info("Decrementing PWM voltage.")
+        if increment != None:
+            if increment==1:
+                log.log_info("Incrementing PWM voltage.")
+            else:
+                log.log_info("Decrementing PWM voltage.")
 
-        try:
-            self._conn.request("PWM", self._DECREMENT if increment == -1 else self._INCREMENT)
-            response = self._conn.getresponse()
-            #log.log_info(response.read())
-        except socket_error as serr:
-            log.log_error("Failed communication with HTTP server.")
+            try:
+                self._conn.request("PWM", self._DECREMENT if increment == -1 else self._INCREMENT)
+                response = self._conn.getresponse()
+                #log.log_info(response.read())
+            except socket_error as serr:
+                log.log_error("Failed communication with HTTP server.")
 
     def move(self, vector, invert_x_axis, invert_y_axis):
         """ Given input parameters, activates the specified solenoid

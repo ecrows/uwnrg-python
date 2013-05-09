@@ -88,14 +88,23 @@ def switch_actuator_axis():
     """ Toggles which device is responsible for x and y axis movement """
     _movement_controller.switch_actuator_axis()
 
-def change_speed(increment):
+def get_speed():
     """  Changes the speed of movement for the controller
 
     Keyword Arguments:
     increment -- whether the speed is increasing (1) or decreasing (-1)
 
     """
-    _movement_controller.speed_change(increment)
+    return _movement_controller.get_speed()
+
+def change_speed(new_value, increment):
+    """  Changes the speed of movement for the controller
+
+    Keyword Arguments:
+    increment -- whether the speed is increasing (1) or decreasing (-1)
+
+    """
+    _movement_controller.speed_change(new_value, increment)
 
 def init_field():
     return field.Field()
