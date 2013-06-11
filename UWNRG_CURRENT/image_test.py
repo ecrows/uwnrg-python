@@ -3,10 +3,11 @@ import cv2 as cv2
 import numpy as np
 
 #vc = cv2.VideoCapture("MobilityRun1.wmv")
-vc = cv2.VideoCapture(1)
+vc = cv2.VideoCapture("MicroassemblyRun1.wmv")
+#vc = cv2.VideoCapture(1)
 rval, frame = vc.read()
 
-irtest = imaging.ImageRecognition("eight")
+irtest = imaging.ImageRecognition("micro")
 testfield = irtest.new_field()
 
 cv2.namedWindow("preview")
