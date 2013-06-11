@@ -1,9 +1,8 @@
 import cv2 as cv2
 import numpy as np
 import math as math
-import threading as threading
 
-class Field:
+class Field(object):
     """
     Contains methods for each field.
     
@@ -30,9 +29,6 @@ class Field:
     __debug = 1 
     __render = 0
     
-    thread_running = False
-    lock =  threading.Lock()
-
     def __process_frame(self, frame):
         # 5 frame border to avoid getting frame edges detected
         roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
@@ -209,7 +205,7 @@ class Field:
         """
         raise NotImplementedError
 
-    def __find_rect_boundary(self, edges, type):
+    def find_rect_boundary(self, edges, type):
         """Find the edges of a rectangular field and return line index
 
         Should only be called *once* at the beginning of the challenge
@@ -218,13 +214,13 @@ class Field:
         #TODO: Make this less disgusting.
 
         Keyword Arguments:
-        edges -- a list of all possible edges
+        edges -- the edge-filtered input frame from the camera 
         type -- the type of edge to find
 
         """
         linedex = -1
         detail=10       # look at every tenth pixel
-        thresh=8        # must have at least 8 pixels to match
+        thresh=6       # must have at least 5 pixels to match
         rowcount = 0
 
         if type == "bottom":
