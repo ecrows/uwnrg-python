@@ -30,7 +30,8 @@ class MicroAssembly(field.Field):
         data[0:self.GRID_W, self.GRID_W-1] = 1
         data[0, 0:self.GRID_H] = 1
         data[self.GRID_H-1, 0:self.GRID_H] = 1
-
+        """
+        TODO: Replace with new imlpementation from show_boundaries
         # Detect outer boundaries.
 
         topline = self.find_rect_boundary(edges, "top")
@@ -49,7 +50,7 @@ class MicroAssembly(field.Field):
         cv2.namedWindow("Display window", cv2.CV_WINDOW_AUTOSIZE)
         cv2.imshow("Display window", fancyedges)
         cv2.waitKey()
-
+        """
         return (data)
 
     def find_robot(self):
@@ -120,33 +121,56 @@ class MicroAssembly(field.Field):
         data[self.GRID_H-1, 0:self.GRID_H] = 1
 
         # Detect outer boundaries.
+        # Note that the detail and threshold values (the last two arguments) will need to be tweaked to avoid false positives
 
-        topline = self.find_rect_boundary(edges, "top")
-        botline = self.find_rect_boundary(edges, "bottom")
-        leftline = self.find_rect_boundary(edges, "left")
-        rightline = self.find_rect_boundary(edges, "right")
+        topline = self.find_next_vert_line(edges, 0, -1, 10, 6)
+        channel_top = self.find_next_vert_line(edges, topline+25, -1, 10, 6) + topline + 25
+        channel_bot = self.find_next_vert_line(edges, channel_top+25, -1, 10, 6) + channel_top + 25
+        botline = self.find_next_vert_line(edges, channel_bot+25, -1, 10, 6) + channel_bot + 25
+        leftline = self.find_next_horiz_line(edges, 0, -1, 10, 6) 
+        channel_left = self.find_next_horiz_line(edges, leftline+25, -1, 5, 6) + leftline + 25
+        channel_right = self.find_next_horiz_line(edges, channel_left+25, -1, 5, 6) + channel_left+ 25
 
         # Below are adjusted for ROI offset
         # This should be changed when the threshold GUI is implemented
         leftline += 160
-        rightline = 550
+        channel_left += 160
+        channel_right += 160
         topline += 120
         botline += 120
+        channel_top += 120
+        channel_bot += 120
         
         pt1 = (leftline,topline)
-        pt2 = (rightline,topline)
-        cv2.line(frame, pt1, pt2, (0,0,255), 3) 
+        pt2 = (channel_left,topline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2) 
 
         pt1 = (leftline, botline)
-        pt2 = (rightline, botline)
-        cv2.line(frame, pt1, pt2, (0,0,255), 3)
-
-        pt1 = (rightline, botline)
-        pt2 = (rightline, topline)
-        cv2.line(frame, pt1, pt2, (0,0,255), 3)
+        pt2 = (channel_left, botline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
 
         pt1 = (leftline, botline)
         pt2 = (leftline, topline)
-        cv2.line(frame, pt1, pt2, (0,0,255), 3)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (channel_right, channel_top)
+        pt2 = (channel_right, channel_bot)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (channel_left, channel_top)
+        pt2 = (channel_right, channel_top)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (channel_left, channel_bot)
+        pt2 = (channel_right, channel_bot)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (channel_left, channel_top)
+        pt2 = (channel_left, topline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (channel_left, channel_bot)
+        pt2 = (channel_left, botline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
 
         return frame
