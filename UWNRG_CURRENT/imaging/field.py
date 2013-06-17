@@ -204,13 +204,78 @@ class Field(object):
         """
         raise NotImplementedError
 
+    def find_next_horiz_line(self, edges, lower_lim, upper_lim, detail, thresh):
+        """Find the first horizontal line between upper and lower limits and return line index
+
+        Keyword Arguments:
+        edges -- the edge-filtered input frame from the camera 
+        lower_lim -- the lower coordinate limit to start searching
+        upper_lim -- the upper coordinate limit to stop searching
+        detail -- look at every "n" pixels
+        thresh -- number of dark pixels to trigger a match
+
+        """
+        linedex = -1
+        rowcount = 0
+
+        for rows in edges.T[lower_lim:upper_lim]:
+            count = 0
+            i = 0
+
+            while i < rows.size:
+                if rows[i]==255:
+                    count+=1
+
+                i+=detail
+
+            if count > thresh:
+                linedex = rowcount
+                break
+
+            rowcount+=1
+
+        return linedex
+
+    def find_next_vert_line(self, edges, lower_lim, upper_lim, detail, thresh):
+        """Find the first vertical line between upper and lower limits and return line index
+
+        Keyword Arguments:
+        edges -- the edge-filtered input frame from the camera 
+        lower_lim -- the lower coordinate limit to start searching
+        upper_lim -- the upper coordinate limit to stop searching
+        detail -- look at every "n" pixels
+        thresh -- number of dark pixels to trigger a match
+
+        """
+        linedex = -1
+        rowcount = 0
+
+        for rows in edges[lower_lim:upper_lim]:
+            count = 0
+            i = 0
+
+            while i < rows.size:
+                if rows[i]==255:
+                    count+=1
+                i+=detail
+
+            if count > thresh:
+                linedex = rowcount
+                break
+
+            rowcount+=1
+
+        return linedex
+
     def find_rect_boundary(self, edges, type):
-        """Find the edges of a rectangular field and return line index
+        """DECREPIT: Use "find_next_<linetype>_line" instead.
+        
+        Find the edges of a rectangular field and return line index
 
         Should only be called *once* at the beginning of the challenge
         Pretty hack-y way to clean up the find_eight_field method
 
-        #TODO: Make this less disgusting.
+        #TODO: Remove this function and any legacy code depending on it.
 
         Keyword Arguments:
         edges -- the edge-filtered input frame from the camera 
@@ -218,12 +283,14 @@ class Field(object):
 
         """
         linedex = -1
-        detail=10       # look at every tenth pixel
-        thresh=6       # must have at least 5 pixels to match
+        detail= 10       # look at every tenth pixel
+        thresh= 6       # must have at least 5 pixels to match
         rowcount = 0
+        lower_lim = 0
+        upper_lim = -1
 
         if type == "bottom":
-            for rows in edges:
+            for rows in edges[lower_lim:upper_lim]:
                 count = 0
                 i = 0
 
@@ -238,7 +305,7 @@ class Field(object):
 
                 rowcount+=1
         elif type == "top":
-            for rows in edges:
+            for rows in edges[lower_lim:upper_lim]:
                 count = 0
                 i = 0
 
@@ -254,7 +321,7 @@ class Field(object):
 
                 rowcount+=1
         elif type == "right":
-            for rows in edges.T:
+            for rows in edges.T[lower_lim:upper_lim]:
                 count = 0
                 i = 0
 
@@ -269,7 +336,7 @@ class Field(object):
 
                 rowcount+=1
         elif type == "left":
-            for rows in edges.T:
+            for rows in edges.T[lower_lim:upper_lim]:
                 count = 0
                 i = 0
 
