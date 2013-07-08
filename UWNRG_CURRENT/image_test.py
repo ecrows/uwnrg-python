@@ -11,18 +11,19 @@ irtest = imaging.ImageRecognition("micro")
 testfield = irtest.new_field()
 
 cv2.namedWindow("preview")
-processed = testfield.show_boundaries(frame)
-
+testfield.find_field(frame)
+processed = testfield.show_robot(frame)
 while (rval): 
-    processed = testfield.show_boundaries(frame)
     cv2.imshow("preview", processed)  
-    #TODO: Include robot location test
+    processed = testfield.show_robot(frame)
     rval, frame = vc.read()
+
     #Should show console output of simplified array data
     #Ideally eventually in the form of the path to be taken
     #np.set_printoptions(threshold='nan')
     #print testput
+
     key = cv2.waitKey(1)
     if key == 27: # exit on ESC
         break
-#raw_input("Press any Key")
+#raw_input("Press key to continue")
