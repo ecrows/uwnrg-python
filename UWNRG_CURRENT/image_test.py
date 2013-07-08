@@ -18,11 +18,13 @@ while (rval):
     cv2.imshow("preview", processed)
     #TODO: Include robot location test
     rval, frame = vc.read()
+
     #Should show console output of simplified array data
     #Ideally eventually in the form of the path to be taken
     #np.set_printoptions(threshold='nan')
     #print testput
+
     key = cv2.waitKey(1)
     if key == 27: # exit on ESC
         break
-#raw_input("Press any Key")
+#raw_input("Press key to continue")

@@ -24,6 +24,15 @@ class Field(object):
     canny_thresh1 = 80
     canny_thresh2 = 120
 
+    # Store location of boundary walls in frame, measured in pixels
+    __leftline = -1
+    __channel_left = -1
+    __channel_right = -1
+    __topline = -1
+    __botline = -1
+    __channel_top = -1
+    __channel_bot = -1
+
     # debug variable chooses either sample video or camera feed
     # should evolve into a "Video Source" option
     __debug = 1
@@ -255,9 +264,9 @@ class Field(object):
             i = 0
 
             while i < rows.size:
-                if rows[i]==255:
-                    count+=1
-                i+=detail
+                if rows[i] == 255:
+                    count += 1
+                i += detail
 
             if count > thresh:
                 linedex = rowcount
@@ -266,6 +275,60 @@ class Field(object):
             rowcount+=1
 
         return linedex
+
+    def find_blob(self, monoframe, detail):
+        """Finds largest blob of white pixels in a monochromatic square frame,
+        provided the blob is the largest object by far in the area.
+        Returns a point at approximately the center
+
+        Keyword Arguments:
+        monoframe -- the thresholded frame from the camera
+        detail -- look at every 'n' pixels
+        
+        """
+        
+        # Find the x-coordinate with the largest number of white pixels
+
+        y_maxloc = -1
+        y_max = 0
+        rowcount = 0
+
+        for rows in monoframe:
+            count = 0
+            i = 0
+
+            while i < rows.size:
+                if rows[i] == 255:
+                    count += 1
+                i += detail
+
+            if count > y_max:
+                y_max = count
+                y_maxloc = rowcount
+
+            rowcount += 1
+
+        x_maxloc = -1
+        x_max = 0
+        rowcount = 0
+
+        for rows in monoframe.T:
+            count = 0
+            i = 0
+
+            while i < rows.size:
+                if rows[i] == 255:
+                    count += 1
+                i += detail
+
+            if count > x_max:
+                x_max = count
+                x_maxloc = rowcount
+
+            rowcount += 1
+
+        return (x_maxloc, y_maxloc)
+
 
     def find_rect_boundary(self, edges, type):
         """DECREPIT: Use "find_next_<linetype>_line" instead.
