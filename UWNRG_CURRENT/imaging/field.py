@@ -279,7 +279,7 @@ class Field(object):
     def find_blob(self, monoframe, detail):
         """Finds largest blob of white pixels in a monochromatic square frame,
         provided the blob is the largest object by far in the area.
-        Returns a point at approximately the center
+        Returns a point at approximately the center, returns -1, -1 if no blob found
 
         Keyword Arguments:
         monoframe -- the thresholded frame from the camera
