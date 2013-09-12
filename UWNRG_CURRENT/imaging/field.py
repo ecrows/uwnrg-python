@@ -6,7 +6,7 @@ import threading as threading
 class Field:
     """
     Contains methods for each field.
-    
+
     """
     # Constant representing scale of output array
     GRID_H = 32
@@ -27,9 +27,9 @@ class Field:
 
     # debug variable chooses either sample video or camera feed
     # should evolve into a "Video Source" option
-    __debug = 1 
+    __debug = 1
     __render = 0
-    
+
     thread_running = False
     lock =  threading.Lock()
 
@@ -37,12 +37,12 @@ class Field:
         # 5 frame border to avoid getting frame edges detected
         roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
         gray=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
-        
+
         if (self.medfilt_width%2 == 0):
             self.medfilt_width+=1
 
         medfilt=cv2.medianBlur(gray, self.medfilt_width)
-        
+
         tr=cv2.adaptiveThreshold(medfilt,255,0,1,self.adaptive_blocksize,self.adaptive_c)
 
         edges = cv2.Canny(medfilt, self.canny_thresh1, self.canny_thresh2)
@@ -88,7 +88,7 @@ class Field:
 
         while rval:
             rval, frame = self.__vc.read()
-    
+
             if (rval==0):
                 break
 
@@ -97,7 +97,7 @@ class Field:
             # Simple hack for large resolution viewing.
             # Should become a setting somewhere
             # Ideally just a drag to resize window
-        
+
             bigimage = cv2.resize(frame, (840, 630))
 
             if (self.__render == 1):
@@ -114,7 +114,7 @@ class Field:
 
     def stop_camera_feed(self):
         """ Stop camera feed """
-        
+
         print "Camera feed stopped"
         self.lock.acquire()
         self.thread_running = True

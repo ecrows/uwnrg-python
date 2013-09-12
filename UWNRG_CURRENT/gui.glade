@@ -347,6 +347,7 @@ until someone writes the help documents.</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Camera</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_setup_menu_camera_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -490,6 +491,7 @@ until someone writes the help documents.</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Start Feed</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_tools_menu_start_camera_feed_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -499,6 +501,7 @@ until someone writes the help documents.</property>
                         <property name="can_focus">False</property>
                         <property name="label" translatable="yes">Stop Feed</property>
                         <property name="use_underline">True</property>
+                        <signal name="activate" handler="on_tools_menu_stop_camera_feed_activate" swapped="no"/>
                       </object>
                     </child>
                     <child>
@@ -602,7 +605,17 @@ until someone writes the help documents.</property>
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <placeholder/>
+              <object class="GtkImage" id="feed">
+                <property name="width_request">0</property>
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="stock">gtk-missing-image</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
             </child>
             <child>
               <object class="GtkVBox" id="vertical_right_controls">
@@ -633,7 +646,6 @@ until someone writes the help documents.</property>
                         <property name="vscrollbar_policy">automatic</property>
                         <child>
                           <object class="GtkTextView" id="vertical_log_scroll_window_text_view">
-                            <property name="width_request">500</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="editable">False</property>
