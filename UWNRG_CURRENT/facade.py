@@ -1,3 +1,4 @@
+import log as log
 import movement.controller as controller
 
 _movement_controller = controller.Controller()
@@ -12,6 +13,45 @@ def move(vector, inverted_x_axis, inverted_y_axis):
 
     """
     _movement_controller.move(vector, inverted_x_axis, inverted_y_axis)
+
+def end_move(vector, inverted_x_axis, inverted_y_axis):
+    """ Sends the end movement instruction to the appropriate control system
+
+    Keyword Arguments:
+    vector -- movement vector
+    invert_x_axis -- boolean of whether to invert on the x-axis
+    invert_y_axis -- boolean of whether to invert on the y-axis
+
+    """
+    _movement_controller.end_move(vector, inverted_x_axis, inverted_y_axis)
+
+def figure_eight(x_axis_inverted, y_axis_inverted):
+    movements = [(0, -800, 0),
+                 (800, 0, 0),
+                 (0, -800, 0),
+                 (-800, 0, 0),
+                 (0, 800, 0),
+                 (800, 0, 0),
+                 (0, 800, 0),
+                 (-800, 0, 0)]
+    """movements = [(-800, 0, 0),
+                 (0, 800, 0),
+                 (-800, 0, 0),
+                 (0, -800, 0),
+                 (800, 0, 0),
+                 (0, 800, 0),
+                 (800, 0, 0),
+                 (0, -800, 0)]"""
+    _movement_controller.figure_eight(x_axis_inverted, y_axis_inverted)
+
+def set_desired_current(desired_current):
+    _movement_controller.set_desired_current(desired_current)
+
+def toggle_adc():
+    return _movement_controller.toggle_adc()
+
+def get_desired_current():
+    return _movement_controller.get_desired_current()
 
 def move_to(vector, inverted_x_axis, inverted_y_axis):
     """ Sends the movement instruction to the appropriate control system
@@ -48,14 +88,23 @@ def switch_actuator_axis():
     """ Toggles which device is responsible for x and y axis movement """
     _movement_controller.switch_actuator_axis()
 
-def change_speed(increment):
+def get_speed():
     """  Changes the speed of movement for the controller
 
     Keyword Arguments:
     increment -- whether the speed is increasing (1) or decreasing (-1)
 
     """
-    _movement_controller.speed_change(increment)
+    return _movement_controller.get_speed()
+
+def change_speed(new_value, increment):
+    """  Changes the speed of movement for the controller
+
+    Keyword Arguments:
+    increment -- whether the speed is increasing (1) or decreasing (-1)
+
+    """
+    _movement_controller.speed_change(new_value, increment)
 
 def init_field():
     return field.Field()
