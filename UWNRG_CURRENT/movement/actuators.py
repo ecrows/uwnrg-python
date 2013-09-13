@@ -5,6 +5,12 @@ import serial.tools.list_ports as list_ports
 import struct as struct
 import time as time
 
+DEFAULT_SPEED = 1
+
+def get_default_speed():
+    print DEFAULT_SPEED
+    return DEFAULT_SPEED #do better
+
 def _convert_bytes_to_int(byte_array):
     """ Returns a signed integer from a bytearray type (little endian)
 
@@ -40,8 +46,188 @@ class Actuators():
     _SETTINGS = {"MAX_POSITION":44,
                  "ACCELERATION":43,
                  "HOME_OFFSET":47,
-                 "SPEED":42}
+                 "SPEED":42,
+                 "RETURN_CURRENT_POSITION":45}
     __properties = {}
+    __in_x_movement = False
+    __x_direction = 0
+    __in_y_movement = False
+    __y_direction = 0
+    __step_size = 1.984375
+    __variable_step_size = DEFAULT_SPEED
+
+    def get_step(self):
+        return self.__variable_step_size
+
+    def step_change(self, new_value, increment):
+        if new_value != None and new_value >= 0:
+            log.log_info("Changing step size to " + str(new_value))
+            self.__variable_step_size = new_value
+
+        if increment != None:
+            temp = self.__variable_step_size + increment
+
+            if temp < 0:
+                temp = 0
+
+            log.log_info("Changing step size from " + str(self.__variable_step_size) + " to " + str(temp))
+            self.__variable_step_size = temp
+
+    def figure_eight(self, inverted_x_axis, inverted_y_axis):
+        #limits the speeds so that the robot can use a constant speed in each direction
+        y_max_speed = 3000.0
+        x_max_speed = 1200.0
+
+        #stores the movements for the specified directions
+        x_right = _convert_int_to_bytes(x_max_speed)
+        x_left = _convert_int_to_bytes(-x_max_speed)
+        y_up = _convert_int_to_bytes(y_max_speed)
+        y_down = _convert_int_to_bytes(-y_max_speed)
+
+        #the delay for the first command to be processed
+        delay = 0.013
+
+        #height of the field (from the center of one gate to the center of the one below)
+        height_distance = 1300.0
+
+        #the width of the field (from the center of the left section to the center of the right)
+        width_distance = 3400.0
+
+        #the time to travel across the field
+        x_time = width_distance / self.__actuator_speed_to_actual_speed(x_max_speed)
+
+        #the time to travel the height of the field (from center of one gate to the other)
+        height_time = height_distance / self.__actuator_speed_to_actual_speed(y_max_speed)
+
+        #the time spent only moving in the x-direction
+        flat_time = (x_time - height_time * 2) / 2
+
+        #the initial movement in the x direction
+        initial_x_time = x_time - flat_time - height_time * 3 / 2
+
+        #right out of top left gate
+        self.__issue_command(self.__x_device,
+                             22,
+                             x_right[0],
+                             x_right[1],
+                             x_right[2],
+                             x_right[3])
+
+        time.sleep(initial_x_time - delay)
+
+        #starts moving the robot down to bottom right gate
+        self.__issue_command(self.__y_device,
+                             22,
+                             y_down[0],
+                             y_down[1],
+                             y_down[2],
+                             y_down[3])
+
+        time.sleep(height_time)
+
+        #stops the robots y movement so it can go through the gate
+        self.__issue_command(self.__y_device,
+                             23,
+                             0,
+                             0,
+                             0,
+                             0)
+
+        time.sleep(flat_time)
+
+        #starts moving the robot up the right side
+        self.__issue_command(self.__y_device,
+                             22,
+                             y_up[0],
+                             y_up[1],
+                             y_up[2],
+                             y_up[3])
+
+        time.sleep(height_time/2)
+
+        #reverses the x direction of the robot
+        self.__issue_command(self.__x_device,
+                             22,
+                             x_left[0],
+                             x_left[1],
+                             x_left[2],
+                             x_left[3])
+
+        time.sleep(height_time/2)
+
+        #allows the robot to go through the top right gate
+        self.__issue_command(self.__y_device,
+                             23,
+                             0,
+                             0,
+                             0,
+                             0)
+
+        time.sleep(flat_time)
+
+        #starts the robot going down for the bottom left gate
+        self.__issue_command(self.__y_device,
+                             22,
+                             y_down[0],
+                             y_down[1],
+                             y_down[2],
+                             y_down[3])
+
+        time.sleep(height_time)
+
+        #stops y movement so the robot can go through the gate
+        self.__issue_command(self.__y_device,
+                             23,
+                             0,
+                             0,
+                             0,
+                             0)
+
+        time.sleep(flat_time)
+
+        #starts moving the robot up the left channel
+        self.__issue_command(self.__y_device,
+                             22,
+                             y_up[0],
+                             y_up[1],
+                             y_up[2],
+                             y_up[3])
+
+        time.sleep(height_time/2)
+
+        #reverses the robots x direction so it can end in the middle
+        self.__issue_command(self.__x_device,
+                             22,
+                             x_right[0],
+                             x_right[1],
+                             x_right[2],
+                             x_right[3])
+
+        time.sleep(height_time/2)
+
+        #stops y movement so the robot can pass through the upper left gate
+        self.__issue_command(self.__y_device,
+                             23,
+                             0,
+                             0,
+                             0,
+                             0)
+
+        time.sleep(flat_time*3/2)
+
+        #stops x movement as the robot is done
+        self.__issue_command(self.__x_device,
+                             23,
+                             0,
+                             0,
+                             0,
+                             0)
+
+    def __actual_speed_to_actuator_speed(self, speed):
+        return speed / 9.375 / self.__step_size
+
+    def __actuator_speed_to_actual_speed(self, speed):
+        return speed * 9.375 * self.__step_size
 
     def flush_buffers(self):
         """ Clears the input and output buffer for the serial connection """
@@ -75,6 +261,7 @@ class Actuators():
                                                 0,
                                                 0,
                                                 0)
+                print response
 
                 #updates self.__properties with the returned values
                 for response_i in response:
@@ -126,6 +313,43 @@ class Actuators():
         self.__ser.write(bytearray([b_0, b_1, b_2, b_3, b_4, b_5]))
         return self.__read_input(b_0)
 
+    def end_move(self, vector, invert_x_axis, invert_y_axis):
+        """ Given input parameters, moves the robot relative to it's current
+        position. It executes first the x component and then the y component.
+
+        Keyword Arguments:
+        self -- actuator object the function was called on
+        vector -- movement vector
+        invert_x_axis -- boolean of whether to invert on the x-axis
+        invert_y_axis -- boolean of whether to invert on the y-axis
+
+        """
+        if (self.__in_x_movement and vector[0] != 0):
+            self.__in_x_movement = False
+            self.__x_direction = 0
+            log.log_info("stop x")
+
+            #X Axis
+            self.__issue_command(self.__x_device,
+                                 23,
+                                 0,
+                                 0,
+                                 0,
+                                 0)
+
+        if (self.__in_y_movement and vector[1] != 0):
+            self.__in_y_movement = False
+            self.__y_direction = 0
+            log.log_info("stop y")
+
+            #Y Axis
+            self.__issue_command(self.__y_device,
+                                 23,
+                                 0,
+                                 0,
+                                 0,
+                                 0)
+
     def move(self, vector, invert_x_axis, invert_y_axis):
         """ Given input parameters, moves the robot relative to it's current
         position. It executes first the x component and then the y component.
@@ -137,35 +361,59 @@ class Actuators():
         invert_y_axis -- boolean of whether to invert on the y-axis
 
         """
-        #X Axis
-        device = self.__x_device
+        vector = [x * self.__variable_step_size for x in vector]
 
-        if invert_x_axis:
-            vector[0] *= -1
+        if (vector[0] != 0 and self.__in_x_movement and self.__x_direction != 0):
+            temp = -1 if vector[0] < 0 else 1
 
-        byte_array = _convert_int_to_bytes(vector[0])
+            if temp != self.__x_direction:
+                self.end_move([temp, 0], invert_x_axis, invert_y_axis)
 
-        self.__issue_command(device,
-                             21,
-                             byte_array[0],
-                             byte_array[1],
-                             byte_array[2],
-                             byte_array[3])
+        if (not self.__in_x_movement and vector[0] != 0):
+            self.__in_x_movement = True
 
-        #Y Axis
-        device =  self.__y_device
+            #X Axis
+            if invert_x_axis:
+                vector[0] *= -1
 
-        if invert_y_axis:
-            vector[1] *= -1
+            log.log_info("start x " + str(vector[0]))
 
-        byte_array = _convert_int_to_bytes(vector[1])
+            self.__x_direction = -1 if vector[0] < 0 else 1
 
-        self.__issue_command(device,
-                             21,
-                             byte_array[0],
-                             byte_array[1],
-                             byte_array[2],
-                             byte_array[3])
+            byte_array = _convert_int_to_bytes(vector[0])
+
+            self.__issue_command(self.__x_device,
+                                 22,
+                                 byte_array[0],
+                                 byte_array[1],
+                                 byte_array[2],
+                                 byte_array[3])
+
+        if (vector[1] != 0 and self.__in_y_movement and self.__y_direction != 0):
+            temp = -1 if vector[1] < 0 else 1
+
+            if temp != self.__y_direction:
+                self.end_move([0, temp], invert_x_axis, invert_y_axis)
+
+        if (not self.__in_y_movement and vector[1] != 0):
+            self.__in_y_movement = True
+
+            #Y Axis
+            if invert_y_axis:
+                vector[1] *= -1
+
+            log.log_info("start y " + str(vector[1]))
+
+            self.__y_direction = -1 if vector[1] < 0 else 1
+
+            byte_array = _convert_int_to_bytes(vector[1])
+
+            self.__issue_command(self.__y_device,
+                                 22,
+                                 byte_array[0],
+                                 byte_array[1],
+                                 byte_array[2],
+                                 byte_array[3])
 
     def move_to(self, position_vector, invert_x_axis, invert_y_axis):
         """ Given input parameters, moves the robot to the specified position.
@@ -181,9 +429,9 @@ class Actuators():
         #X Axis
         device = self.__x_device
 
-        if invert_x_axis:
+        """if invert_x_axis:
             max_pos = self.get_setting(device, "MAX_POSITION")
-            position_vector[0] = max_pos - position_vector[0]
+            position_vector[0] = max_pos - position_vector[0]"""
 
         byte_array = _convert_int_to_bytes(position_vector[0])
 
@@ -197,9 +445,9 @@ class Actuators():
         #Y Axis
         device = self.__y_device
 
-        if invert_y_axis:
+        """if invert_y_axis:
             max_pos = self.get_setting(device, "MAX_POSITION")
-            position_vector[1] = max_pos - position_vector[1]
+            position_vector[1] = max_pos - position_vector[1]"""
 
         byte_array = _convert_int_to_bytes(position_vector[1])
 
@@ -231,7 +479,7 @@ class Actuators():
             while self.__ser.inWaiting() > 0:
                 l.append(self.__read_byte())
 
-        print l
+        #print l
         return l
 
     def __read_byte(self):

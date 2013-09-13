@@ -26,6 +26,7 @@ class  MainWindow:
                                 3: (0, -1, 0),
                                 4: (0, 0, 1),
                                 5: (0, 0, -1)}
+
         direction = direction_conversion[self.__builder.get_object(
                            "manual_control_instruction_combobox").get_active()]
         magnitude = self.__builder.get_object(
@@ -33,7 +34,7 @@ class  MainWindow:
 
         if magnitude.isdigit():
             magnitude = int(magnitude)
-            facade.move(tuple(magnitude * x for x in direction),
+            facade.move(list(magnitude * x for x in direction),
                                   self.__x_axis_inverted,
                                   self.__y_axis_inverted)
         else:
@@ -61,12 +62,48 @@ class  MainWindow:
 
         if key_pressed in direction_conversion and self.__keyboard_input:
             direction = direction_conversion[key_pressed]
-            direction = [x * self.__actuator_step for x in direction]
+            direction = [x for x in direction]
             facade.move(direction,
                         self.__x_axis_inverted,
                         self.__y_axis_inverted)
         elif key_pressed in speed_change and self.__keyboard_input:
-            facade.change_speed(speed_change[key_pressed])
+            facade.change_speed(None, speed_change[key_pressed])
+
+    def __end_keyboard_movement_instruction(self, window, event):
+        """ Ends Movment Instruction to facade
+
+        Keyword arguments:
+        window -- object the action occured on
+        event -- contains information about the key press event
+
+        """
+        direction_conversion = {97: (-1, 0, 0),
+                                100: (1, 0, 0),
+                                119: (0, 1, 0),
+                                115: (0, -1, 0),
+                                101: (0, 0, 1),
+                                113: (0, 0, -1)}
+
+        key_pressed = event.keyval
+
+        if key_pressed in direction_conversion and self.__keyboard_input:
+            direction = direction_conversion[key_pressed]
+            direction = [x for x in direction]
+            facade.end_move(direction,
+                        self.__x_axis_inverted,
+                        self.__y_axis_inverted)
+
+    def __figure_eight(self, menu_item):
+        facade.figure_eight(self.__x_axis_inverted, self.__y_axis_inverted)
+
+    def __toggle_solenoid_awp(self, menu_item):
+        temp = facade.toggle_awp()
+        if temp == None:
+            log.log_info("Failed to set AWP")
+        elif temp:
+            log.log_info("AWP is on")
+        else:
+            log.log_info("AWP is off")
 
     def __init__(self):
         filename = "GUI.glade"
@@ -89,10 +126,15 @@ class  MainWindow:
             "on_copter_mode_radio_toggled" : self.__switch_mode_copter,
             "on_setup_menu_actuators_activate" :
                                             self.__open_actuator_setup_window,
+            "on_setup_menu_solenoids_activate" :
+                                            self.__open_solenoid_setup_window,
             "on_setup_menu_camera_activate" : self.__open_img_window,
             "on_img_ok_close_clicked" : self.__save_image_settings,
             "on_tools_menu_stop_camera_feed_activate" : self.__stop_feed,
-            "on_tools_menu_start_camera_feed_activate" : self.__start_feed
+            "on_tools_menu_start_camera_feed_activate" : self.__start_feed,
+            "on_figure_eight_activate" : self.__figure_eight,
+            "on_main_window_key_release_event" :
+                                          self.__end_keyboard_movement_instruction
         }
 
         self.__builder = gtk.Builder()
@@ -104,7 +146,7 @@ class  MainWindow:
         self.__log = log.Log()
         self.__x_axis_inverted = False
         self.__y_axis_inverted = False
-        self.__actuator_step = 1
+        self.__solenoid_step = 1
 
         self.__log.set_buffer(self.__builder.get_object(
                 "vertical_log_scroll_window_text_view").get_property('buffer'))
@@ -155,6 +197,53 @@ class  MainWindow:
         help_window.run()
         help_window.hide()
 
+    def __open_solenoid_setup_window(self, menu_item):
+        """ Opens the solenoid setup window
+
+        Keyword arguments:
+        menu_item -- object the action occured on
+
+        """
+        #set the current solenoid step value in the textbox
+        solenoid_step_entry = self.__builder.get_object("solenoid_step_entry1")
+        solenoid_step_entry.set_text(str(self.__solenoid_step))
+
+        #set the desired current value in the textbox
+        solenoid_desired_current_entry = self.__builder.get_object("solenoid_adc_entry")
+        solenoid_desired_current_entry.set_text(str(facade.get_desired_current()))
+
+        solenoid_setup_window = self.__builder.get_object("solenoid_setup_window")
+        # do not listen for close events in order for the close button on the
+        # window to work, as you are unable to add a signal to the close button
+        solenoid_setup_window.run()
+        solenoid_setup_window.hide()
+
+        #sets the solenoid step
+        solenoid_step = solenoid_step_entry.get_text()
+
+        if solenoid_step.isdigit():
+            self.__solenoid_step = int(solenoid_step)
+        else:
+            log.log_error("The magnitude of solenoid time must be an integer,"\
+                          " '{0}' is not an integer.".format(magnitude))
+
+        #sets the desired current for solenoids
+        solenoid_desired_current = solenoid_desired_current_entry.get_text()
+
+        try:
+            facade.set_desired_current(float(solenoid_desired_current))
+        except ValueError:
+            log.log_error("The desired current must be a decimal number,"\
+                          " '{0}' is not an integer.".format(solenoid_desired_current))
+
+        #switches the adc
+        toggle_solenoid_adc = self.__builder.get_object("toggle_solenoid_adc")
+        if toggle_solenoid_adc.get_active():
+            response = facade.toggle_solenoid_adc()
+
+            if response != None:
+                switch_actuator_axis.set_active(response)
+
     def __open_actuator_setup_window(self, menu_item):
         """ Opens the actuator setup window
 
@@ -175,7 +264,7 @@ class  MainWindow:
 
         #set the current actuator step value in the textbox
         actuator_step_entry = self.__builder.get_object("actuator_step_entry")
-        actuator_step_entry.set_text(str(self.__actuator_step))
+        actuator_step_entry.set_text(str(facade.get_speed()))
 
         actuator_setup_window = self.__builder.get_object("actuator_setup_window")
         # do not listen for close events in order for the close button on the
@@ -190,7 +279,7 @@ class  MainWindow:
         actuator_step = actuator_step_entry.get_text()
 
         if actuator_step.isdigit():
-            self.__actuator_step = int(actuator_step)
+            facade.change_speed(int(actuator_step), None)
         else:
             log.log_error("The magnitude of actuator step must be an integer,"\
                           " '{0}' is not an integer.".format(magnitude))
