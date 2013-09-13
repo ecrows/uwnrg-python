@@ -33,6 +33,7 @@ class ImageRecognition:
 
     def __init__(self, type="eight"):
         self.set_field_type(type)
+
         pass
 
     def set_field_type(self, type):
@@ -50,9 +51,9 @@ class ImageRecognition:
         """
 
         if (self.ftype == 0):
-            return figure_eight.Figure8()
+            return figure_eight.Figure8(frame)
         elif (self.ftype == 1):
-            return micro_assembly.MicroAssembly()
+            return micro_assembly.MicroAssembly(frame)
         else:
             # TODO: Make our own exception to raise here
             raise NameError("Invalid field type specified") 
