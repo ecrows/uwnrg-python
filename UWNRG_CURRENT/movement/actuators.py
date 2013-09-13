@@ -74,26 +74,38 @@ class Actuators():
             self.__variable_step_size = temp
 
     def figure_eight(self, inverted_x_axis, inverted_y_axis):
-        x_max = 1400.0
-        y_max = 600.0
+        #limits the speeds so that the robot can use a constant speed in each direction
         y_max_speed = 3000.0
         x_max_speed = 1200.0
+
+        #stores the movements for the specified directions
         x_right = _convert_int_to_bytes(x_max_speed)
         x_left = _convert_int_to_bytes(-x_max_speed)
         y_up = _convert_int_to_bytes(y_max_speed)
         y_down = _convert_int_to_bytes(-y_max_speed)
-        y_stop = _convert_int_to_bytes(0)
+
+        #the delay for the first command to be processed
         delay = 0.013
+
+        #height of the field (from the center of one gate to the center of the one below)
         height_distance = 1300.0
+
+        #the width of the field (from the center of the left section to the center of the right)
         width_distance = 3400.0
 
+        #the time to travel across the field
         x_time = width_distance / self.__actuator_speed_to_actual_speed(x_max_speed)
 
+        #the time to travel the height of the field (from center of one gate to the other)
         height_time = height_distance / self.__actuator_speed_to_actual_speed(y_max_speed)
 
+        #the time spent only moving in the x-direction
         flat_time = (x_time - height_time * 2) / 2
+
+        #the initial movement in the x direction
         initial_x_time = x_time - flat_time - height_time * 3 / 2
 
+        #right out of top left gate
         self.__issue_command(self.__x_device,
                              22,
                              x_right[0],
@@ -103,6 +115,7 @@ class Actuators():
 
         time.sleep(initial_x_time - delay)
 
+        #starts moving the robot down to bottom right gate
         self.__issue_command(self.__y_device,
                              22,
                              y_down[0],
@@ -112,6 +125,7 @@ class Actuators():
 
         time.sleep(height_time)
 
+        #stops the robots y movement so it can go through the gate
         self.__issue_command(self.__y_device,
                              23,
                              0,
@@ -121,6 +135,7 @@ class Actuators():
 
         time.sleep(flat_time)
 
+        #starts moving the robot up the right side
         self.__issue_command(self.__y_device,
                              22,
                              y_up[0],
@@ -130,6 +145,7 @@ class Actuators():
 
         time.sleep(height_time/2)
 
+        #reverses the x direction of the robot
         self.__issue_command(self.__x_device,
                              22,
                              x_left[0],
@@ -139,6 +155,7 @@ class Actuators():
 
         time.sleep(height_time/2)
 
+        #allows the robot to go through the top right gate
         self.__issue_command(self.__y_device,
                              23,
                              0,
@@ -148,6 +165,7 @@ class Actuators():
 
         time.sleep(flat_time)
 
+        #starts the robot going down for the bottom left gate
         self.__issue_command(self.__y_device,
                              22,
                              y_down[0],
@@ -157,6 +175,7 @@ class Actuators():
 
         time.sleep(height_time)
 
+        #stops y movement so the robot can go through the gate
         self.__issue_command(self.__y_device,
                              23,
                              0,
@@ -166,6 +185,7 @@ class Actuators():
 
         time.sleep(flat_time)
 
+        #starts moving the robot up the left channel
         self.__issue_command(self.__y_device,
                              22,
                              y_up[0],
@@ -175,6 +195,7 @@ class Actuators():
 
         time.sleep(height_time/2)
 
+        #reverses the robots x direction so it can end in the middle
         self.__issue_command(self.__x_device,
                              22,
                              x_right[0],
@@ -184,6 +205,7 @@ class Actuators():
 
         time.sleep(height_time/2)
 
+        #stops y movement so the robot can pass through the upper left gate
         self.__issue_command(self.__y_device,
                              23,
                              0,
@@ -193,6 +215,7 @@ class Actuators():
 
         time.sleep(flat_time*3/2)
 
+        #stops x movement as the robot is done
         self.__issue_command(self.__x_device,
                              23,
                              0,
