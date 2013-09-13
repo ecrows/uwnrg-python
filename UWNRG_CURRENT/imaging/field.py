@@ -37,8 +37,9 @@ class Field(object):
     # should evolve into a "Video Source" option
     __debug = 1 
     __render = 0
-    
+
     def __process_frame(self, frame):
+        # TODO: Update this to properly use encapsulated code.
         # 5 frame border to avoid getting frame edges detected
         roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
         gray=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
@@ -59,71 +60,6 @@ class Field(object):
         roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
         return roi
 
-    def get_plain_frame(self):
-        if self.__vc.isOpened():
-            rval, frame = self.__vc.read()
-
-        if rval:
-            return self.__process_plain_frame(frame)
-        else:
-            return False
-
-        #TODO: Remove this debug statement
-        self.__vc = cv2.VideoCapture("MobilityRun2.wmv")
-
-    def get_frame(self):
-        if self.__vc.isOpened():
-            rval, frame = self.__vc.read()
-
-        if rval:
-            return self.__process_frame(frame)
-        else:
-            return False
-
-    def start_camera_feed(self):
-        print "Camera feed started"
-        if self.__vc.isOpened(): # try to get the first frame
-            rval, frame = self.__vc.read()
-        else:
-            rval = False
-
-        if (self.__render == 1):
-            cv2.namedWindow("Camera Feed")
-            bigimage = (())
-
-        while rval:
-            rval, frame = self.__vc.read()
-    
-            if (rval==0):
-                break
-
-            frame = self.__process_plain_frame(frame)
-
-            # Simple hack for large resolution viewing.
-            # Should become a setting somewhere
-            # Ideally just a drag to resize window
-        
-            bigimage = cv2.resize(frame, (840, 630))
-
-            if (self.__render == 1):
-                cv2.imshow("Camera Feed", bigimage)
-
-            key = cv2.waitKey(5)
-            if key == 27: # exit on ESC
-                break
-
-            if self.thread_running == True:
-                break
-
-        self.thread_running = False
-
-    def stop_camera_feed(self):
-        """ Stop camera feed """
-        
-        print "Camera feed stopped"
-        self.lock.acquire()
-        self.thread_running = True
-        self.lock.release()
 
     def __show_boundaries(self, image, leftline, rightline, botline, topline):
         """ Draw rectangular boundaries on image specified by 'image'.
@@ -181,37 +117,10 @@ class Field(object):
         frame -- The camera frame to analyze
 
         """
-        """
-        NOTES ON POSSIBLE IMPLEMENTATION:
-        Solving this problem is likely going to be the most difficult
-        part of this.
 
-        Current plan:
-        Was planning on saving the array of feature pixels on the first pass
-        through, then making a pass along the y and x axis to add up the 
-        feature pixels along each line.
-        Any substantial increase of feature pixels at a particular x-y
-        coordinate is indicative of the robot being at that location.
+        # TODO: Copy over show_robot implementation.
 
-        The problem with this method is that the robot's initial position would
-        leave a "blind spot" in the detection algorithm unless manually
-        compensated for.
-
-        Alternatively, I could save an array of feature pixels on each
-        "find_robot" call. Then any increase in feature count would likely
-        work.
-
-        Further improvements to this strategy would probably be made through
-        searching only areas of the field where the robot is likely to be.
-        That is to say, aggressively mark around the outside boundaries and the
-        middle walls and search between them for the largest clump of pixels
-        (which should be the robot).
-
-        Another question worth asking is whether the Canny filter setup
-        currently used for wall detection is also the best way to detect the
-        robot. There could easily exist a more conspicuous way to mark the
-        robot out.
-        """
+        
         raise NotImplementedError
 
     def find_next_horiz_line(self, edges, lower_lim, upper_lim, detail, thresh):
