@@ -13,7 +13,6 @@ class MicroAssembly(field.Field):
     __channel_bot = -1
     __current_robo_pos = (-1, -1)
     __current_triangle_positions = () #TODO: How many triangles are in the competition?
-    __char_field = ()
 
     def __init__(self, frame):
         """Do initial field processing and initialize character representation of field.
@@ -23,7 +22,17 @@ class MicroAssembly(field.Field):
         
         """
         self.__find_field(frame)
-        self.__char_field = np.zeros((30,40), dtype=np.uint8)
+        self.__simple_field = np.zeros((GRID_W,GRID_H), dtype=np.uint8)
+
+        # TODO: Draw scaled field onto the array.
+        for i in range(0 to GRID_W):
+            for j in range(0 to GRID_H):
+                if (i == 0):
+                    __simple_field = '0'
+                else if (i == GRID_W)
+                    __simple_field = 'X'
+
+        self.__simple_field
 
 
     def __find_field(self, frame):
