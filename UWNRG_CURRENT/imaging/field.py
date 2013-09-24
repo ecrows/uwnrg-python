@@ -38,6 +38,9 @@ class Field(object):
     __debug = 1 
     __render = 0
 
+    # Simple field representation for use in pathfinding, etc.
+    __simple_field = ()
+
     def __process_frame(self, frame):
         # TODO: Update this to properly use encapsulated code.
         # 5 frame border to avoid getting frame edges detected
