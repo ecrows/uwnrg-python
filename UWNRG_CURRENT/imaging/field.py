@@ -42,6 +42,7 @@ class Field(object):
     __simple_field = ()
 
     def __process_frame(self, frame):
+        # TODO: Update this to properly use encapsulated code.
         # 5 frame border to avoid getting frame edges detected
         roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
         gray=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
@@ -62,71 +63,6 @@ class Field(object):
         roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
         return roi
 
-    def get_plain_frame(self):
-        if self.__vc.isOpened():
-            rval, frame = self.__vc.read()
-
-        if rval:
-            return self.__process_plain_frame(frame)
-        else:
-            return False
-
-        #TODO: Remove this debug statement
-        self.__vc = cv2.VideoCapture("MobilityRun2.wmv")
-
-    def get_frame(self):
-        if self.__vc.isOpened():
-            rval, frame = self.__vc.read()
-
-        if rval:
-            return self.__process_frame(frame)
-        else:
-            return False
-
-    def start_camera_feed(self):
-        print "Camera feed started"
-        if self.__vc.isOpened(): # try to get the first frame
-            rval, frame = self.__vc.read()
-        else:
-            rval = False
-
-        if (self.__render == 1):
-            cv2.namedWindow("Camera Feed")
-            bigimage = (())
-
-        while rval:
-            rval, frame = self.__vc.read()
-
-            if (rval==0):
-                break
-
-            frame = self.__process_plain_frame(frame)
-
-            # Simple hack for large resolution viewing.
-            # Should become a setting somewhere
-            # Ideally just a drag to resize window
-
-            bigimage = cv2.resize(frame, (840, 630))
-
-            if (self.__render == 1):
-                cv2.imshow("Camera Feed", bigimage)
-
-            key = cv2.waitKey(5)
-            if key == 27: # exit on ESC
-                break
-
-            if self.thread_running == True:
-                break
-
-        self.thread_running = False
-
-    def stop_camera_feed(self):
-        """ Stop camera feed """
-
-        print "Camera feed stopped"
-        self.lock.acquire()
-        self.thread_running = True
-        self.lock.release()
 
     def __show_boundaries(self, image, leftline, rightline, botline, topline):
         """ Draw rectangular boundaries on image specified by 'image'.
