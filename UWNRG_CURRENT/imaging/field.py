@@ -38,8 +38,21 @@ class Field(object):
     __debug = 1
     __render = 0
 
-    # Simple field representation for use in pathfinding, etc.
-    __simple_field = ()
+    def __init__(self, height=32, width=32):
+        """ Initializes the Field Type
+
+        Keyword Arguments:
+        height -- height of the array representing the field
+        width -- width of the array representing the field
+
+        """
+        self.GRID_H = height
+        self.GRID_W = width
+
+        if self.__debug:
+            self.__vc = cv2.VideoCapture("MobilityRun1.wmv")
+        else:
+            self.__vc = cv2.VideoCapture(1)
 
     def __process_frame(self, frame):
         # TODO: Update this to properly use encapsulated code.
@@ -80,22 +93,6 @@ class Field(object):
         topline -- topline is the y co-ordinate of the horizontal left line
         """
         raise NotImplementedError
-
-    def __init__(self, height=32, width=32):
-        """ Initializes the Field Type
-
-        Keyword Arguments:
-        height -- height of the array representing the field
-        width -- width of the array representing the field
-
-        """
-        self.GRID_H = height
-        self.GRID_W = width
-
-        if self.__debug:
-            self.__vc = cv2.VideoCapture("MobilityRun1.wmv")
-        else:
-            self.__vc = cv2.VideoCapture(1)
 
 
     def find_field(self, frame):

@@ -1,6 +1,7 @@
 import cv2 as cv2
 import numpy as np
 import field as field
+import os as os
 
 class MicroAssembly(field.Field):
 
@@ -11,8 +12,14 @@ class MicroAssembly(field.Field):
     __botline = -1
     __channel_top = -1
     __channel_bot = -1
+    __raw_robo_pos = (-1, -1)
     __current_robo_pos = (-1, -1)
     __current_triangle_positions = () #TODO: How many triangles are in the competition?
+
+    __clear_cmd = 'cls'
+
+    # Simple field representation for use in pathfinding, etc.
+    __field_data = ()
 
     def __init__(self, frame):
         """Do initial field processing and initialize character representation of field.
@@ -22,18 +29,39 @@ class MicroAssembly(field.Field):
         
         """
         self.__find_field(frame)
-        self.__simple_field = np.zeros((GRID_W,GRID_H), dtype=np.uint8)
 
-        # TODO: Draw scaled field onto the array.
-        for i in range(0 to GRID_W):
-            for j in range(0 to GRID_H):
+        self.__field_data = np.zeros((self.GRID_W,self.GRID_H), dtype=np.uint8)
+
+        # Check if these proportions are correct.
+        # TODO: Pretty sure the GRID_W and GRID_H are mixed up here and there.
+        
+        for i in range(self.GRID_W):
+            for j in range(self.GRID_H):
                 if (i == 0):
-                    __simple_field = '0'
-                else if (i == GRID_W)
-                    __simple_field = 'X'
+                    if (j <= self.GRID_H/2):
+                        self.__field_data.itemset((i,j), 1) 
+                elif (i == self.GRID_W-1):
+                    if (j <= self.GRID_H/2):
+                        self.__field_data.itemset((i,j), 1)
+                elif (i == self.GRID_W/3 or i == (self.GRID_W/3) * 2):
+                    if (j > self.GRID_H/2):
+                        self.__field_data.itemset((i,j), 1)
+               
+                if (j == 0):
+                    self.__field_data.itemset((i,j), 1) 
+                elif (j == self.GRID_H/2):
+                    if (i <= self.GRID_W/3 or i >= (self.GRID_W/3)*2):
+                        self.__field_data.itemset((i,j), 1) 
+                elif (j == self.GRID_H-1):
+                    if (i >= self.GRID_W/3 and i <= (self.GRID_W/3)*2):
+                        self.__field_data.itemset((i,j), 1) 
 
-        self.__simple_field
+        # Set up numpy for dumping the field_data array.
+        np.set_printoptions(threshold=np.nan)
+        # print self.__field_data
 
+        # Get the command we need to clear the console (for debugging purposes)
+        self.__clear_cmd = 'cls' if os.name == 'nt' else 'clear'
 
     def __find_field(self, frame):
         """Returns array representation of rectangular field. Should be called
@@ -81,13 +109,7 @@ class MicroAssembly(field.Field):
         self.__channel_top = channel_top 
         self.__channel_bot = channel_bot 
 
-    def get_character_grid(self):
-        """Returns current robot position"""
-
-        return __current_robot_pos
-    
-
-    def process_grid(self):
+    def process_grid(self, frame):
         """Finds the robot and triangles in a camera frame, using the boundaries saved from "find_field"
         Updates the current_pos values with the new positions of the robot and triangles.
 
@@ -122,15 +144,24 @@ class MicroAssembly(field.Field):
             tr=cv2.threshold(gray,40,255,1)[1]
             robo_coord = self.find_blob(tr, 4)
 
-            # TODO: These will be dependent on the amount of extra space we're trimming.  Tweak accordingly.
-            adjusted_robo_coord = (robo_coord[0] + self.__channel_left, robo_coord[1] + self.__channel_top+20)
-
-        # If we still haven't found the robot, indicate it by leaving the cursor in the top left 
-        if (robo_coord[0] == -1 and robo_coord[1] == -1):
-            adjusted_robo_coord = (0,0) 
-
-        # TODO: Scale the result onto the grid.
+            if (robo_coord[0] != -1):
+                # TODO: These values will be dependent on the amount of extra space we're trimming.  Tweak accordingly.
+                adjusted_robo_coord = (robo_coord[0] + self.__channel_left, robo_coord[1] + self.__channel_top+20)
         
+        self.__raw_robo_pos = (adjusted_robo_coord[0], adjusted_robo_coord[1])
+
+        # Scale the result onto the grid, don't update the robot position if we couldn't find it.
+        # TODO: We need a handling strategy if we lose the robot and can't find it.
+
+        if (robo_coord[0] != -1 and robo_coord[1] != -1):
+            # TODO: Ensure we never place the robot on a wall.
+            self.__field_data.itemset(self.__current_robo_pos, 0)
+
+            self.__current_robo_pos = (((adjusted_robo_coord[1] - self.__topline)*self.GRID_H / (self.__botline - self.__topline)),
+                                        ((adjusted_robo_coord[0] - self.__leftline)*self.GRID_W / (self.__channel_right - self.__leftline)))
+
+            self.__field_data.itemset(self.__current_robo_pos, 9)
+
 
     def show_robot(self, frame):
         """Draw a circle at the location of the robot
@@ -142,7 +173,7 @@ class MicroAssembly(field.Field):
             print "Attempted to show robot before finding field!"
             raise
 
-        # Performs initial filtering TODO: Could still use some tweaking
+        """# Performs initial filtering TODO: Could still use some tweaking
         # Note that it is not necessary to perform any edge filtering
         roi = frame[self.__topline+20:self.__botline-10, self.__leftline+20:self.__channel_left-8]        # search only the area within the walls of the field 
         gray=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
@@ -171,9 +202,49 @@ class MicroAssembly(field.Field):
         # If we still haven't found the robot, indicate it by leaving the cursor in the top left 
         if (robo_coord[0] == -1 and robo_coord[1] == -1):
             adjusted_robo_coord = (0,0) 
+        """
 
-        cv2.circle(frame, adjusted_robo_coord, 10, (0, 0, 255))
+        self.process_grid(frame)
+
+        cv2.circle(frame, self.__raw_robo_pos, 10, (0, 0, 255))
         #cv2.line(frame, (adjusted_robo_coord[1], adjusted_robo_coord[0]), (0, 0), (0,255,255), 1) 
+
+        # Show what the current field data looks like
+        os.system(self.__clear_cmd)
+        print self.__field_data
+
+        pt1 = (self.__leftline,self.__topline)
+        pt2 = (self.__channel_left,self.__topline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2) 
+
+        pt1 = (self.__leftline, self.__botline)
+        pt2 = (self.__channel_left, self.__botline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (self.__leftline, self.__botline)
+        pt2 = (self.__leftline, self.__topline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (self.__channel_right, self.__channel_top)
+        pt2 = (self.__channel_right, self.__channel_bot)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (self.__channel_left, self.__channel_top)
+        pt2 = (self.__channel_right, self.__channel_top)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (self.__channel_left, self.__channel_bot)
+        pt2 = (self.__channel_right, self.__channel_bot)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (self.__channel_left, self.__channel_top)
+        pt2 = (self.__channel_left, self.__topline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+
+        pt1 = (self.__channel_left, self.__channel_bot)
+        pt2 = (self.__channel_left, self.__botline)
+        cv2.line(frame, pt1, pt2, (0,0,255), 2)
+       
 
         return frame
         
