@@ -40,6 +40,7 @@ class ImageRecognition:
         # TODO: Use the video feed from the camera.
         #vc = cv2.VideoCapture(1)
 
+        # Use the video feed from a test video
         self.__vc = cv2.VideoCapture("MicroassemblyRun1.wmv")
         pass
 
@@ -50,7 +51,7 @@ class ImageRecognition:
             self.ftype = 1
 
     def new_field(self):
-        """Return field object of type "type"
+        """Factory returns field object of type "type"
 
         Use "eight" to refer to Figure8.
         Use "micro" to refer to MicroAssembly.
@@ -59,8 +60,10 @@ class ImageRecognition:
         rval, frame = self.__vc.read()
 
         if (not rval):
-            #TODO: Raise an error here.
-            print "oops"
+            #TODO: Raise a proper error here.
+            print "Error reading frame!"
+
+        # Creates either a new microassembly or figure-8 style field.
 
         if (self.ftype == 0):
             return figure_eight.Figure8(frame)

@@ -4,7 +4,9 @@ import field as field
 
 class Figure8(field.Field):
 
-    #TODO: Add constructor that takes initial frame.
+    # TODO: This needs to be modernized using the structure and API calls introduced during the design of microassembly.py
+    # image_test.py can be used for testing.  See Dropbox or contact Evan for sample videos.
+    # TODO: The constructor should take a single frame as input and use it to build the field representation
 
     def find_field(self, frame):
         """Returns array representation of rectangular field. Should be called
@@ -33,6 +35,7 @@ class Figure8(field.Field):
         data[self.GRID_H-1, 0:self.GRID_H] = 1
 
         # Detect outer boundaries.
+        # TODO: These should be done using the "find next X line" calls.
 
         topline = self.find_rect_boundary(edges, "top")
         botline = self.find_rect_boundary(edges, "bottom")
@@ -45,14 +48,7 @@ class Figure8(field.Field):
         self.roi_left = leftline + 10
         self.roi_right = rightline - 10
 
-        # Detect inner walls, paint them onto the output grid
-
-        # Go from left to right.
-        # Hit a white pixel?  Set the relevant grid space to '1'
-        # Go along center of white pixel lines, deduce gate locations
-
-        # Wait a second.  If we fabricate our own fields, then it would
-        # be more reliable to use our own field proportions based on our outline.
+        # TODO: Detect inner walls, paint them onto the output gird.
 
         # Find top left gate (Gate 3)
         # Temporary image output so I know what's happening
@@ -65,9 +61,7 @@ class Figure8(field.Field):
 
     def show_boundaries(self, frame):
         """Attempt to find and display boundaries of field
-        and return image with lines drawn on.
-
-        TODO:Encapsulate boundary finding in another function.
+        and return image with lines drawn on for debugging.
 
         Keyword Arguments:
         image -- image to draw boundaries on
@@ -128,7 +122,7 @@ class Figure8(field.Field):
     def find_robot(self, frame):
         """Finds the robot given a camera frame.
 
-        Should be implemented by child.
+        TODO: Similiar implementation to microassembly should be used.
 
         Keyword Arguments:
         frame -- The camera frame to analyze
