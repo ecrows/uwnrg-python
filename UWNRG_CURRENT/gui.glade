@@ -10,11 +10,12 @@
     <property name="program_name">Controls System</property>
     <property name="version">v0.1</property>
     <property name="authors">Matthew Maclean
-Andrew Heller
-Taylor Petrick
 Evan Crothers
+Leslie Ying
 Elwin Ha
-Garry Ng</property>
+Garry Ng
+Andrew Heller
+Taylor Petrick</property>
     <property name="logo">img/nrg_logo.png</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
