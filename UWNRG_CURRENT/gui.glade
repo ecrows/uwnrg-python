@@ -10,9 +10,9 @@
     <property name="program_name">Controls System</property>
     <property name="version">v0.9</property>
     <property name="authors">Matthew Maclean
-Leslie Ying
-Addison
 Evan Crothers
+Addison Keizer
+Leslie Ying
 Elwin Ha
 Garry Ng
 Andrew Heller
@@ -394,21 +394,6 @@ com-port:</property>
                         <signal name="activate" handler="on_edit_menu_clear_log_activate" swapped="no"/>
                       </object>
                     </child>
-                    <child>
-                      <object class="GtkSeparatorMenuItem" id="edit_menu_separator2">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkMenuItem" id="edit_menu_preferences">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
-                        <property name="label" translatable="yes">Preferences</property>
-                        <property name="use_underline">True</property>
-                      </object>
-                    </child>
                   </object>
                 </child>
               </object>
@@ -432,19 +417,6 @@ com-port:</property>
                         <property name="label" translatable="yes">Figure Eight</property>
                         <property name="use_underline">True</property>
                         <signal name="activate" handler="on_figure_eight_activate" swapped="no"/>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkSeparatorMenuItem" id="separatormenuitem3">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
-                        <property name="use_action_appearance">False</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkSeparatorMenuItem" id="tools_menu_separator">
-                        <property name="visible">True</property>
-                        <property name="can_focus">False</property>
                       </object>
                     </child>
                     <child>

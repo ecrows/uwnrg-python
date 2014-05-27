@@ -1,8 +1,13 @@
 import cv2 as cv2
 import numpy as np
-import fiel as field
+import field as field
 
 class Figure8(field.Field):
+
+    # TODO: This needs to be modernized using the structure and API calls introduced during the design of microassembly.py
+    # image_test.py can be used for testing.  See Dropbox or contact Evan for sample videos.
+    # TODO: The constructor should take a single frame as input and use it to build the field representation
+
     def find_field(self, frame):
         """Returns array representation of rectangular field. Should be called
         *once* at the beginning of the challenge. Works only on an aligned
@@ -30,11 +35,12 @@ class Figure8(field.Field):
         data[self.GRID_H-1, 0:self.GRID_H] = 1
 
         # Detect outer boundaries.
+        # TODO: These should be done using the "find next X line" calls.
 
-        topline = self._find_rect_boundary(edges, "top")
-        botline = self._find_rect_boundary(edges, "bottom")
-        leftline = self._find_rect_boundary(edges, "left")
-        rightline = self._find_rect_boundary(edges, "right")
+        topline = self.find_rect_boundary(edges, "top")
+        botline = self.find_rect_boundary(edges, "bottom")
+        leftline = self.find_rect_boundary(edges, "left")
+        rightline = self.find_rect_boundary(edges, "right")
 
         # Update region of interest to cut down unnecessary processing
         self.roi_top = topline + 10
@@ -42,50 +48,9 @@ class Figure8(field.Field):
         self.roi_left = leftline + 10
         self.roi_right = rightline - 10
 
-        # Detect inner walls, paint them onto the output grid
-
-        # Go from left to right.
-        # Hit a white pixel?  Set the relevant grid space to '1'
-        # Go along center of white pixel lines, deduce gate locations
-
-        # Wait a second.  If we fabricate our own fields, then it would
-        # be more reliable to use our own field proportions based on our outline.
+        # TODO: Detect inner walls, paint them onto the output gird.
 
         # Find top left gate (Gate 3)
-        # TODO: Decrepit.  S
-        """
-        i = leftline+20
-        centeravg = 0;
-        firstval = -1
-        lastval = -1
-        while i < (topline+botline)/2:
-            count = 0
-            j = topline+10 #TODO: Balance
-            while j < (leftline+rightline)/2:
-                if edges[i][j]==255:
-                    count+=1
-                    centeravg+=j
-                j+=1
-
-            if count >= 2:
-                if (firstval == -1):
-                    firstval = i
-
-                lastval = i
-                centeravg/=count
-                data[(i-topline)/(topline-botline)*self.GRID_H]\
-                    [(centeravg-leftline)/(rightline-leftline)*self.GRID_W] = 1
-            i+=1
-
-        if (firstval != -1):
-            pt1 = (centeravg, lastval)
-            pt2 = (centeravg, firstval)
-            cv2.line(fancyedges, pt1, pt2, (255,0,255), 3)
-        #cv2.rectangle(fancyedges, centeravg, , (0,0,255), 3)
-        """
-
-        # TODO: Find probable initial robot location to compensate?
-
         # Temporary image output so I know what's happening
 
         cv2.namedWindow("Display window", cv2.CV_WINDOW_AUTOSIZE)
@@ -96,9 +61,7 @@ class Figure8(field.Field):
 
     def show_boundaries(self, frame):
         """Attempt to find and display boundaries of field
-        and return image with lines drawn on.
-
-        TODO:Encapsulate boundary finding in another function.
+        and return image with lines drawn on for debugging.
 
         Keyword Arguments:
         image -- image to draw boundaries on
@@ -121,47 +84,16 @@ class Figure8(field.Field):
 
         # Detect outer boundaries.
 
-        topline = self._find_rect_boundary(edges, "top")
-        botline = self._find_rect_boundary(edges, "bottom")
-        leftline = self._find_rect_boundary(edges, "left")
-        rightline = self._find_rect_boundary(edges, "right")
+        topline = self.find_rect_boundary(edges, "top")
+        botline = self.find_rect_boundary(edges, "bottom")
+        leftline = self.find_rect_boundary(edges, "left")
+        rightline = self.find_rect_boundary(edges, "right")
 
         # Update region of interest to cut down unnecessary processing
         self.roi_top = topline + 10
         self.roi_bot = botline - 10
         self.roi_left = leftline + 10
         self.roi_right = rightline - 10
-
-        # TODO: Balance arg values, link to UI for easy user adjustment
-        roi = frame[60:475, 20:620]        # avoid getting frame edges detected
-        gray=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
-        medfilt=cv2.medianBlur(gray, 7)    # aperture width must be odd.
-        tr=cv2.adaptiveThreshold(medfilt,255,0,1,11,2)
-        edges = cv2.Canny(medfilt, 80, 120)
-        fancyedges = cv2.cvtColor(edges,cv2.COLOR_GRAY2BGR)
-
-        # Creates output grid, initializes boundaries around edges (wall = 1)
-        # TODO: Add boundaries efficiently (i.e. one pass)
-        data = np.zeros((self.GRID_H, self.GRID_W))
-        data[0:self.GRID_W, 0] = 1
-        data[0:self.GRID_W, self.GRID_W-1] = 1
-        data[0, 0:self.GRID_H] = 1
-        data[self.GRID_H-1, 0:self.GRID_H] = 1
-
-        # Detect outer boundaries.
-
-        topline = self._find_rect_boundary(edges, "top")
-        botline = self._find_rect_boundary(edges, "bottom")
-        leftline = self._find_rect_boundary(edges, "left")
-        rightline = self._find_rect_boundary(edges, "right")
-
-        # Update region of interest to cut down unnecessary processing
-        # TODO: Also display ROI info on field display
-        self.roi_top = topline + 10
-        self.roi_bot = botline - 10
-        self.roi_left = leftline + 10
-        self.roi_right = rightline - 10
-
         # Below are adjusted for ROI offset
         # This should be changed when the threshold GUI is implemented
         leftline += 20
@@ -190,7 +122,7 @@ class Figure8(field.Field):
     def find_robot(self, frame):
         """Finds the robot given a camera frame.
 
-        Should be implemented by child.
+        TODO: Similiar implementation to microassembly should be used.
 
         Keyword Arguments:
         frame -- The camera frame to analyze
