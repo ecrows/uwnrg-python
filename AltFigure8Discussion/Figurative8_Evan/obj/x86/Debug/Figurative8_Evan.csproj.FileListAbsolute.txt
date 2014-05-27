@@ -1,5 +1,0 @@
-C:\Users\Evan Crothers\Documents\Visual Studio 2010\Projects\Figurative8_Evan\Figurative8_Evan\obj\x86\Debug\ResolveAssemblyReference.cache
-C:\Users\Evan Crothers\Documents\Visual Studio 2010\Projects\Figurative8_Evan\Figurative8_Evan\bin\Debug\Figurative8_Evan.exe
-C:\Users\Evan Crothers\Documents\Visual Studio 2010\Projects\Figurative8_Evan\Figurative8_Evan\bin\Debug\Figurative8_Evan.pdb
-C:\Users\Evan Crothers\Documents\Visual Studio 2010\Projects\Figurative8_Evan\Figurative8_Evan\obj\x86\Debug\Figurative8_Evan.exe
-C:\Users\Evan Crothers\Documents\Visual Studio 2010\Projects\Figurative8_Evan\Figurative8_Evan\obj\x86\Debug\Figurative8_Evan.pdb

@@ -24,16 +24,19 @@ def end_move(vector, inverted_x_axis, inverted_y_axis):
 
     """
     _movement_controller.end_move(vector, inverted_x_axis, inverted_y_axis)
+def navigate_maze(sequence, x_axis_inverted, y_axis_inverted):
+    log.log_info("Navigating maze...")
+    pass
 
 def figure_eight(x_axis_inverted, y_axis_inverted):
-    movements = [(0, -800, 0),
+    """movements = [(0, -800, 0),
                  (800, 0, 0),
                  (0, -800, 0),
                  (-800, 0, 0),
                  (0, 800, 0),
                  (800, 0, 0),
                  (0, 800, 0),
-                 (-800, 0, 0)]
+                 (-800, 0, 0)]"""
     """movements = [(-800, 0, 0),
                  (0, 800, 0),
                  (-800, 0, 0),
@@ -68,20 +71,13 @@ def switch_to_EMMA_actuator():
     """ Switches the controller to EMMA actuator mode """
     _movement_controller.switch_to_EMMA_actuator()
 
-def switch_to_EMMA_solenoid():
-    """ Switches the controller to EMMA solenoid mode """
-    _movement_controller.switch_to_EMMA_solenoid()
-
-def switch_to_copter():
-    """ Switches the controller to copter mode """
-    _movement_controller.switch_to_copter()
-
 def get_available_com_ports():
     """ Returns a list of available com-ports """
     return _movement_controller.get_available_com_ports()
 
 def set_com_port(com_port):
-    """ Sets the com-port to use for actuator communication """
+    """ Sets the com-port to use for actuator communication 
+    TODO: Do this at start-up"""
     _movement_controller.initialize_actuators(com_port)
 
 def switch_actuator_axis():
@@ -125,27 +121,6 @@ def configure_field(med_width, ad_bsize, ad_const, can_low, can_high):
     field.adaptive_c = ad_const
     field.canny_thresh1 = can_low
     field.canny_thresh2= can_high
-
-# Feed start and stop commands stubbed for now as 
-# live streaming is on hold for more critical features.
-
-def __work(main_field):
-    """ Initialized camera feed 
-    Exists due to an oddity in python threading
-    Corresponding facade handler removed for the moment"""
-    # main_field.start_camera_feed()
-    pass
-
-def start_feed(main_field):
-    """ Start new thread for camera window """
-    #p = Process(target=__work, args=(main_field,))
-    #p.start()
-    #t = threading.Thread(target=__work, args=(main_field,))
-    #t.start()
-
-def stop_feed(main_field):
-    """ Signal camera thread to stop """
-    #main_field.stop_camera_feed()
 
 def get_frame_np(main_field):
     """ Get a numpy array frame to display in the main window """

@@ -92,18 +92,19 @@ class  MainWindow:
             facade.end_move(direction,
                         self.__x_axis_inverted,
                         self.__y_axis_inverted)
+  
+    def __open_maze_navigate_dialog(self, menu_item):
+        """ Opens the image settings window """
+        maze_window = self.__builder.get_object("maze_window")
+
+        maze_window.run()
+        maze_window.hide()
 
     def __figure_eight(self, menu_item):
         facade.figure_eight(self.__x_axis_inverted, self.__y_axis_inverted)
 
-    def __toggle_solenoid_awp(self, menu_item):
-        temp = facade.toggle_awp()
-        if temp == None:
-            log.log_info("Failed to set AWP")
-        elif temp:
-            log.log_info("AWP is on")
-        else:
-            log.log_info("AWP is off")
+    def __maze_navigate(self):
+        facade.maze_navigate(sequence, self.__x_axis_inverted, self.__y_axis_inverted)
 
     def __init__(self):
         filename = "GUI.glade"
@@ -122,17 +123,10 @@ class  MainWindow:
                                           self.__keyboard_movement_instruction,
             "on_edit_menu_clear_log_activate" : self.__clear_log,
             "on_emma_mode_actuator_radio_toggled" : self.__switch_mode_EMMA_actuator,
-            "on_emma_mode_solenoid_radio_toggled" : self.__switch_mode_EMMA_solenoid,
-            "on_copter_mode_radio_toggled" : self.__switch_mode_copter,
             "on_setup_menu_actuators_activate" :
                                             self.__open_actuator_setup_window,
-            "on_setup_menu_solenoids_activate" :
-                                            self.__open_solenoid_setup_window,
-            "on_setup_menu_camera_activate" : self.__open_img_window,
-            "on_img_ok_close_clicked" : self.__save_image_settings,
-            "on_tools_menu_stop_camera_feed_activate" : self.__stop_feed,
-            "on_tools_menu_start_camera_feed_activate" : self.__start_feed,
             "on_figure_eight_activate" : self.__figure_eight,
+            "on_navigate_maze" : self.__open_maze_navigate_dialog,
             "on_main_window_key_release_event" :
                                           self.__end_keyboard_movement_instruction
         }
@@ -329,37 +323,6 @@ class  MainWindow:
 
         """
         self.__keyboard_input ^= True;
-
-    def __open_img_window(self, menu_item):
-        """ Opens the image settings window """
-        img_window = self.__builder.get_object("img_window")
-
-        img_window.run()
-        img_window.hide()
-
-        # TODO: Backup old image settings, so that if the user presses
-        # "Cancel" old image settings are restored
-
-        # image window will display settings, camera feed will be displayed in separate window
-        # if time permits, camera feed should be embedded directly into window
-
-    def __save_image_settings(self, menu_item):
-        """ Update camera settings upon pressing OK """
-        facade.confirm_new_settings(med_width, ad_bsize, ad_const, can_low, can_high)
-
-    def __start_feed(self, menu_item):
-        """ Start camera feed """
-        if (self.__field.thread_running == False):
-            self.__field.thread_running = True
-            t = threading.Thread(target=self.__work)
-            t.start()
-            #facade.start_feed(self.__field)
-
-    def __stop_feed(self, menu_item):
-        """ Terminate camera feed """
-        if (self.__field.thread_running == True):
-            facade.stop_feed(self.__field)
-            self.__field.thread_running = False
 
 app = MainWindow()
 gtk.main()
