@@ -1,9 +1,8 @@
 import cv2 as cv2
 import numpy as np
 import math as math
-import threading as threading
 
-class Field:
+class Field(object):
     """
     Contains methods for each field.
 
@@ -25,15 +24,38 @@ class Field:
     canny_thresh1 = 80
     canny_thresh2 = 120
 
+    # Store location of boundary walls in frame, measured in pixels
+    __leftline = -1
+    __channel_left = -1
+    __channel_right = -1
+    __topline = -1
+    __botline = -1
+    __channel_top = -1
+    __channel_bot = -1
+
     # debug variable chooses either sample video or camera feed
     # should evolve into a "Video Source" option
     __debug = 1
     __render = 0
 
-    thread_running = False
-    lock =  threading.Lock()
+    def __init__(self, height=32, width=32):
+        """ Initializes the Field Type
+
+        Keyword Arguments:
+        height -- height of the array representing the field
+        width -- width of the array representing the field
+
+        """
+        self.GRID_H = height
+        self.GRID_W = width
+
+        if self.__debug:
+            self.__vc = cv2.VideoCapture("MobilityRun1.wmv")
+        else:
+            self.__vc = cv2.VideoCapture(1)
 
     def __process_frame(self, frame):
+        # TODO: Update this to properly use encapsulated code.
         # 5 frame border to avoid getting frame edges detected
         roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
         gray=cv2.cvtColor(roi,cv2.COLOR_BGR2GRAY)
@@ -54,71 +76,6 @@ class Field:
         roi = frame[self.roi_top:self.roi_bot, self.roi_left:self.roi_right]
         return roi
 
-    def get_plain_frame(self):
-        if self.__vc.isOpened():
-            rval, frame = self.__vc.read()
-
-        if rval:
-            return self.__process_plain_frame(frame)
-        else:
-            return False
-
-        #TODO: Remove this debug statement
-        self.__vc = cv2.VideoCapture("MobilityRun2.wmv")
-
-    def get_frame(self):
-        if self.__vc.isOpened():
-            rval, frame = self.__vc.read()
-
-        if rval:
-            return self.__process_frame(frame)
-        else:
-            return False
-
-    def start_camera_feed(self):
-        print "Camera feed started"
-        if self.__vc.isOpened(): # try to get the first frame
-            rval, frame = self.__vc.read()
-        else:
-            rval = False
-
-        if (self.__render == 1):
-            cv2.namedWindow("Camera Feed")
-            bigimage = (())
-
-        while rval:
-            rval, frame = self.__vc.read()
-
-            if (rval==0):
-                break
-
-            frame = self.__process_plain_frame(frame)
-
-            # Simple hack for large resolution viewing.
-            # Should become a setting somewhere
-            # Ideally just a drag to resize window
-
-            bigimage = cv2.resize(frame, (840, 630))
-
-            if (self.__render == 1):
-                cv2.imshow("Camera Feed", bigimage)
-
-            key = cv2.waitKey(5)
-            if key == 27: # exit on ESC
-                break
-
-            if self.thread_running == True:
-                break
-
-        self.thread_running = False
-
-    def stop_camera_feed(self):
-        """ Stop camera feed """
-
-        print "Camera feed stopped"
-        self.lock.acquire()
-        self.thread_running = True
-        self.lock.release()
 
     def __show_boundaries(self, image, leftline, rightline, botline, topline):
         """ Draw rectangular boundaries on image specified by 'image'.
@@ -136,22 +93,6 @@ class Field:
         topline -- topline is the y co-ordinate of the horizontal left line
         """
         raise NotImplementedError
-
-    def __init__(self, height=32, width=32):
-        """ Initializes the Field Type
-
-        Keyword Arguments:
-        height -- height of the array representing the field
-        width -- width of the array representing the field
-
-        """
-        self.GRID_H = height
-        self.GRID_W = width
-
-        if self.__debug:
-            self.__vc = cv2.VideoCapture("MobilityRun1.wmv")
-        else:
-            self.__vc = cv2.VideoCapture(1)
 
 
     def find_field(self, frame):
@@ -176,59 +117,153 @@ class Field:
         frame -- The camera frame to analyze
 
         """
-        """
-        NOTES ON POSSIBLE IMPLEMENTATION:
-        Solving this problem is likely going to be the most difficult
-        part of this.
 
-        Current plan:
-        Was planning on saving the array of feature pixels on the first pass
-        through, then making a pass along the y and x axis to add up the 
-        feature pixels along each line.
-        Any substantial increase of feature pixels at a particular x-y
-        coordinate is indicative of the robot being at that location.
+        # TODO: Copy over show_robot implementation.
 
-        The problem with this method is that the robot's initial position would
-        leave a "blind spot" in the detection algorithm unless manually
-        compensated for.
-
-        Alternatively, I could save an array of feature pixels on each
-        "find_robot" call. Then any increase in feature count would likely
-        work.
-
-        Further improvements to this strategy would probably be made through
-        searching only areas of the field where the robot is likely to be.
-        That is to say, aggressively mark around the outside boundaries and the
-        middle walls and search between them for the largest clump of pixels
-        (which should be the robot).
-
-        Another question worth asking is whether the Canny filter setup
-        currently used for wall detection is also the best way to detect the
-        robot. There could easily exist a more conspicuous way to mark the
-        robot out.
-        """
+        
         raise NotImplementedError
 
-    def __find_rect_boundary(self, edges, type):
-        """Find the edges of a rectangular field and return line index
+    def find_next_horiz_line(self, edges, lower_lim, upper_lim, detail, thresh):
+        """Find the first horizontal line between upper and lower limits and return line index
+
+        Keyword Arguments:
+        edges -- the edge-filtered input frame from the camera 
+        lower_lim -- the lower coordinate limit to start searching
+        upper_lim -- the upper coordinate limit to stop searching
+        detail -- look at every "n" pixels
+        thresh -- number of dark pixels to trigger a match
+
+        """
+        linedex = -1
+        rowcount = 0
+
+        for rows in edges.T[lower_lim:upper_lim]:
+            count = 0
+            i = 0
+
+            while i < rows.size:
+                if rows[i]==255:
+                    count+=1
+
+                i+=detail
+
+            if count > thresh:
+                linedex = rowcount
+                break
+
+            rowcount+=1
+
+        return linedex
+
+    def find_next_vert_line(self, edges, lower_lim, upper_lim, detail, thresh):
+        """Find the first vertical line between upper and lower limits and return line index
+
+        Keyword Arguments:
+        edges -- the edge-filtered input frame from the camera 
+        lower_lim -- the lower coordinate limit to start searching
+        upper_lim -- the upper coordinate limit to stop searching
+        detail -- look at every "n" pixels
+        thresh -- number of dark pixels to trigger a match
+
+        """
+        linedex = -1
+        rowcount = 0
+
+        for rows in edges[lower_lim:upper_lim]:
+            count = 0
+            i = 0
+
+            while i < rows.size:
+                if rows[i] == 255:
+                    count += 1
+                i += detail
+
+            if count > thresh:
+                linedex = rowcount
+                break
+
+            rowcount+=1
+
+        return linedex
+
+    def find_blob(self, monoframe, detail):
+        """Finds largest blob of white pixels in a monochromatic square frame,
+        provided the blob is the largest object by far in the area.
+        Returns a point at approximately the center, returns -1, -1 if no blob found
+
+        Keyword Arguments:
+        monoframe -- the thresholded frame from the camera
+        detail -- look at every 'n' pixels
+        
+        """
+        
+        # Find the x-coordinate with the largest number of white pixels
+
+        y_maxloc = -1
+        y_max = 0
+        rowcount = 0
+
+        for rows in monoframe:
+            count = 0
+            i = 0
+
+            while i < rows.size:
+                if rows[i] == 255:
+                    count += 1
+                i += detail
+
+            if count > y_max:
+                y_max = count
+                y_maxloc = rowcount
+
+            rowcount += 1
+
+        x_maxloc = -1
+        x_max = 0
+        rowcount = 0
+
+        for rows in monoframe.T:
+            count = 0
+            i = 0
+
+            while i < rows.size:
+                if rows[i] == 255:
+                    count += 1
+                i += detail
+
+            if count > x_max:
+                x_max = count
+                x_maxloc = rowcount
+
+            rowcount += 1
+
+        return (x_maxloc, y_maxloc)
+
+
+    def find_rect_boundary(self, edges, type):
+        """DECREPIT: Use "find_next_<linetype>_line" instead.
+        
+        Find the edges of a rectangular field and return line index
 
         Should only be called *once* at the beginning of the challenge
         Pretty hack-y way to clean up the find_eight_field method
 
-        #TODO: Make this less disgusting.
+        #TODO: Remove this function and any legacy code depending on it.
 
         Keyword Arguments:
-        edges -- a list of all possible edges
+        edges -- the edge-filtered input frame from the camera 
         type -- the type of edge to find
 
         """
         linedex = -1
-        detail=10       # look at every tenth pixel
-        thresh=8        # must have at least 8 pixels to match
+        detail= 10       # look at every tenth pixel
+        thresh= 6       # must have at least 5 pixels to match
         rowcount = 0
+        lower_lim = 0
+        upper_lim = -1
 
         if type == "bottom":
-            for rows in edges:
+            for rows in edges[lower_lim:upper_lim]:
                 count = 0
                 i = 0
 
@@ -243,7 +278,7 @@ class Field:
 
                 rowcount+=1
         elif type == "top":
-            for rows in edges:
+            for rows in edges[lower_lim:upper_lim]:
                 count = 0
                 i = 0
 
@@ -259,7 +294,7 @@ class Field:
 
                 rowcount+=1
         elif type == "right":
-            for rows in edges.T:
+            for rows in edges.T[lower_lim:upper_lim]:
                 count = 0
                 i = 0
 
@@ -274,7 +309,7 @@ class Field:
 
                 rowcount+=1
         elif type == "left":
-            for rows in edges.T:
+            for rows in edges.T[lower_lim:upper_lim]:
                 count = 0
                 i = 0
 
