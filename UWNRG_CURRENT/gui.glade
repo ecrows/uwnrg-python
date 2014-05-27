@@ -8,7 +8,7 @@
     <property name="border_width">5</property>
     <property name="type_hint">normal</property>
     <property name="program_name">Controls System</property>
-    <property name="version">v0.9</property>
+    <property name="version">v0.91</property>
     <property name="authors">Matthew Maclean
 Evan Crothers
 Addison Keizer
