@@ -107,7 +107,7 @@ class  MainWindow:
         facade.maze_navigate(sequence, self.__x_axis_inverted, self.__y_axis_inverted)
 
     def __init__(self):
-        filename = "GUI.glade"
+        filename = "gui.glade"
         handlers = {
             "on_setup_menu_exit_activate" : gtk.main_quit,
             "on_main_window_destroy" : gtk.main_quit,

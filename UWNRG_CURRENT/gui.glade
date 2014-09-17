@@ -348,6 +348,43 @@ com-port:</property>
               </object>
             </child>
             <child>
+              <object class="GtkMenuItem" id="video_menu">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="use_action_appearance">False</property>
+                <property name="label" translatable="yes">_Video</property>
+                <property name="use_underline">True</property>
+                <child type="submenu">
+                  <object class="GtkMenu" id="video_menu_dropdown">
+                    <property name="visible">True</property>
+                    <property name="can_focus">False</property>
+                    <child>
+                      <object class="GtkCheckMenuItem"
+                      id="video_menu_micro_cam">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">Microscopic Camera View</property>
+                        <property name="use_underline">True</property>
+                        <signal name="toggled" handler="on_video_menu_micro_cam_toggled" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckMenuItem"
+                      id="video_menu_web_cam">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="use_action_appearance">False</property>
+                        <property name="label" translatable="yes">WebCam View</property>
+                        <property name="use_underline">True</property>
+                        <signal name="toggled" handler="on_video_menu_web_cam_toggled" swapped="no"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
               <object class="GtkMenuItem" id="edit_menu">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
